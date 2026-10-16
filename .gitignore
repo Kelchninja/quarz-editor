@@ -1,6 +1,7 @@
 node_modules
 dist
 .vscode
+.claude
 .env
 .DS_Store
 docs/general/
