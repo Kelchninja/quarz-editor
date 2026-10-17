@@ -1,10 +1,9 @@
 import { createMemo, createSignal, For, Show } from "solid-js";
 import { ChevronRight, FolderPlus, Plus } from "lucide-solid";
-import type { Entry } from "../api";
+import type { NoteMeta, VaultMeta } from "../bindings";
 
 type SidebarProps = {
-  title: string;
-  entries: Entry[];
+  vault: VaultMeta;
   activePath?: string;
   onOpen: (path: string) => void;
   onNewNote?: () => void;
@@ -19,7 +18,7 @@ type TreeNode = {
 };
 
 function Sidebar(props: SidebarProps) {
-  const tree = createMemo(() => buildTree(props.entries));
+  const tree = createMemo(() => buildTree(props.vault.notes));
   const [expanded, setExpanded] = createSignal(new Set<string>());
 
   function toggle(path: string) {
@@ -51,7 +50,7 @@ function Sidebar(props: SidebarProps) {
               <ChevronRight size={14} />
             </Show>
           </span>
-          <span class="tree-name">{displayName(node)}</span>
+          <span class="tree-name">{node.name}</span>
         </button>
 
         <Show when={node.isDir && isOpen()}>
@@ -68,7 +67,7 @@ function Sidebar(props: SidebarProps) {
   return (
     <aside class="sidebar">
       <header class="sidebar-header">
-        <span class="sidebar-title">{props.title}</span>
+        <span class="sidebar-title">{props.vault.name}</span>
         <button
           class="icon-button"
           aria-label="Neue Notiz"
@@ -92,8 +91,8 @@ function Sidebar(props: SidebarProps) {
   );
 }
 
-// Macht aus der flachen Liste einen Baum. Fehlende Ordner werden ergänzt.
-function buildTree(entries: Entry[]): TreeNode[] {
+// Macht aus der flachen Notizliste einen Baum. Ordner entstehen aus den Pfaden.
+function buildTree(notes: NoteMeta[]): TreeNode[] {
   const root: TreeNode[] = [];
   const dirs = new Map<string, TreeNode[]>([["", root]]);
 
@@ -113,15 +112,11 @@ function buildTree(entries: Entry[]): TreeNode[] {
     return node.children;
   }
 
-  for (const entry of entries) {
-    if (entry.isDir) {
-      childrenOf(entry.path);
-      continue;
-    }
-    const slash = entry.path.lastIndexOf("/");
-    childrenOf(entry.path.slice(0, Math.max(slash, 0))).push({
-      name: entry.path.slice(slash + 1),
-      path: entry.path,
+  for (const note of notes) {
+    const slash = note.path.lastIndexOf("/");
+    childrenOf(note.path.slice(0, Math.max(slash, 0))).push({
+      name: note.title,
+      path: note.path,
       isDir: false,
       children: [],
     });
@@ -141,10 +136,6 @@ function sortTree(nodes: TreeNode[]) {
       : a.name.localeCompare(b.name, "de", { numeric: true }),
   );
   for (const node of nodes) sortTree(node.children);
-}
-
-function displayName(node: TreeNode): string {
-  return node.isDir ? node.name : node.name.replace(/\.md$/, "");
 }
 
 export default Sidebar;

@@ -5,7 +5,9 @@ use serde::{Deserialize, Serialize};
 
 /// Pfad relativ zum Vault-Root, immer mit '/' getrennt, immer UTF-8.
 /// Kein `.`, `..` oder leeres Segment, kann den Vault also nicht verlassen.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, specta::Type,
+)]
 // Deserialisieren läuft durch `TryFrom`, sonst könnte das Frontend `../..` schicken.
 #[serde(try_from = "String")]
 pub struct VaultPath(String);

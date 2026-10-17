@@ -4,7 +4,7 @@ use crate::vault::path::VaultPath;
 use crate::vault::vault::Vault;
 
 /// Leichte Sicht auf eine Notiz fürs Frontend, ohne Inhalt.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct NoteMeta {
     pub path: VaultPath,
@@ -15,13 +15,16 @@ impl NoteMeta {
     pub fn new(path: VaultPath) -> Self {
         // Titel = Dateiname ohne ".md".
         let file_name = path.as_str().rsplit('/').next().unwrap_or_default();
-        let title = file_name.strip_suffix(".md").unwrap_or(file_name).to_string();
+        let title = file_name
+            .strip_suffix(".md")
+            .unwrap_or(file_name)
+            .to_string();
         Self { path, title }
     }
 }
 
 /// Leichte Sicht auf den Vault fürs Frontend.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct VaultMeta {
     pub name: String,
