@@ -20,6 +20,14 @@ async getVaultMeta() : Promise<Result<VaultMeta, string>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async createFolder(path: VaultPath) : Promise<Result<VaultMeta, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("create_folder", { path }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -40,7 +48,7 @@ export type NoteMeta = { path: VaultPath; title: string }
 /**
  * Leichte Sicht auf den Vault fürs Frontend.
  */
-export type VaultMeta = { name: string; notes: NoteMeta[] }
+export type VaultMeta = { name: string; notes: NoteMeta[]; folders: VaultPath[] }
 /**
  * Pfad relativ zum Vault-Root, immer mit '/' getrennt, immer UTF-8.
  * Kein `.`, `..` oder leeres Segment, kann den Vault also nicht verlassen.

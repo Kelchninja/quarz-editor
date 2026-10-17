@@ -1,5 +1,6 @@
 use crate::vault::vault::Vault;
+use std::sync::Mutex;
 
 pub struct AppState {
-    pub vault: Vault,
+    pub vault: Mutex<Vault>,
 }

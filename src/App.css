@@ -155,3 +155,21 @@ body,
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+/* Namensfeld beim Anlegen eines Ordners */
+.tree-input {
+  flex: 1;
+  min-width: 0;
+  padding: 1px 4px;
+  margin: -2px 0;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--bg);
+  font: inherit;
+  color: var(--text);
+  outline: none;
+}
+
+.tree-input::selection {
+  background: var(--accent-soft);
+}

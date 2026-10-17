@@ -1,4 +1,7 @@
-use crate::vault::path::VaultPath;
+use crate::vault::{
+    entry::{Editable, EntryMeta},
+    path::VaultPath,
+};
 use blake3;
 
 // ContentHash
@@ -13,26 +16,55 @@ impl ContentHash {
 
 // Note
 
+/// Eine Notiz im Vault-Baum, ohne Text.
+#[derive(Debug, Clone)]
 pub struct Note {
-    path: VaultPath,
-    source: String,
+    // pub, weil File::meta() in entry.rs darauf zugreift.
+    pub meta: EntryMeta,
     hash: ContentHash,
 }
 
 impl Note {
-    pub fn new(path: VaultPath, source: String) -> Self {
-        let hash = ContentHash::of(&source);
-        Self { path, source, hash }
-    }
-    pub fn path(&self) -> &VaultPath {
-        &self.path
+    pub fn new(path: VaultPath, hash: ContentHash) -> Self {
+        Self {
+            meta: EntryMeta::new(path),
+            hash,
+        }
     }
 
-    pub fn source(&self) -> &str {
-        &self.source
+    pub fn path(&self) -> &VaultPath {
+        &self.meta.path
     }
 
     pub fn hash(&self) -> ContentHash {
         self.hash
+    }
+}
+
+// NoteDocument
+
+/// Eine geöffnete Notiz mit ihrem Text. Gibt es nur für offene Notizen.
+#[derive(Debug, Clone)]
+pub struct NoteDocument {
+    pub note: Note,
+    source: String,
+}
+
+impl NoteDocument {
+    pub fn new(path: VaultPath, source: String) -> Self {
+        let note = Note::new(path, ContentHash::of(&source));
+        Self { note, source }
+    }
+}
+
+impl Editable for NoteDocument {
+    fn source(&self) -> &str {
+        &self.source
+    }
+
+    fn set_source(&mut self, text: String) {
+        // Neuer Inhalt, also neuer Hash.
+        self.note.hash = ContentHash::of(&text);
+        self.source = text;
     }
 }

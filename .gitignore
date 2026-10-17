@@ -5,3 +5,4 @@ dist
 .env
 .DS_Store
 docs/general/
+out/

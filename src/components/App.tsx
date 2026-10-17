@@ -28,10 +28,25 @@ function App() {
     else console.error("Vault konnte nicht geladen werden:", result.error);
   }
 
+  async function newFolder(name: string) {
+    const current = vault();
+    if (!current) return;
+
+    if (name.includes("/") || name.includes("\\")) {
+      console.error(`Ungültiger Ordnername: ${name}`);
+      return;
+    }
+
+    // Gibt es den Namen schon, wird eine Zahl angehängt.
+    const path = freeName(current.folders, name);
+    const result = await commands.createFolder(path);
+    if (result.status === "ok") setVault(result.data);
+    else console.error(`Ordner ${path} konnte nicht angelegt werden:`, result.error);
+  }
+
   // onMount / onCleanup
   onMount(() => {
     loadVault();
-    openNote("goober.md");
   });
 
   // JSX
@@ -39,12 +54,26 @@ function App() {
     <main class="app">
       <Show when={vault()}>
         {(v) => (
-          <Sidebar vault={v()} activePath={activePath()} onOpen={openNote} />
+          <Sidebar
+            vault={v()}
+            activePath={activePath()}
+            onOpen={openNote}
+            onCreateFolder={newFolder}
+          />
         )}
       </Show>
       <Editor doc={content()} />
     </main>
   );
+}
+
+// "Name", sonst "Name 1", "Name 2", …
+function freeName(taken: string[], base: string): string {
+  const used = new Set(taken);
+  if (!used.has(base)) return base;
+  let n = 1;
+  while (used.has(`${base} ${n}`)) n++;
+  return `${base} ${n}`;
 }
 
 export default App;

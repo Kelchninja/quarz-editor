@@ -29,6 +29,7 @@ impl NoteMeta {
 pub struct VaultMeta {
     pub name: String,
     pub notes: Vec<NoteMeta>,
+    pub folders: Vec<VaultPath>,
 }
 
 impl VaultMeta {
@@ -40,7 +41,12 @@ impl VaultMeta {
             .unwrap_or_default();
 
         let notes = vault.files.keys().cloned().map(NoteMeta::new).collect();
+        let folders = vault.folders.iter().cloned().collect();
 
-        Self { name, notes }
+        Self {
+            name,
+            notes,
+            folders,
+        }
     }
 }

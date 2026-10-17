@@ -1,0 +1,55 @@
+@startuml Notiz anlegen
+' Ordner anlegen läuft genauso: create_folder, fs::create_dir, vault.folders.
+autonumber
+
+skinparam backgroundColor #1b1d22
+skinparam defaultFontColor #dcdde0
+skinparam ArrowColor #b4b7bd
+skinparam ArrowThickness 1.5
+skinparam SequenceLifeLineBorderColor #8b8f98
+skinparam SequenceLifeLineBorderThickness 1.5
+skinparam SequenceGroupBorderColor #2a2d34
+skinparam SequenceGroupHeaderFontColor #dcdde0
+skinparam SequenceGroupBodyBackgroundColor transparent
+skinparam SequenceBoxBorderColor #2a2d34
+skinparam NoteBackgroundColor #2a2d34
+skinparam NoteBorderColor #8b8f98
+skinparam ActorBackgroundColor #8b8f98
+skinparam ActorBorderColor #dcdde0
+skinparam DatabaseBackgroundColor #3a3d45
+skinparam DatabaseBorderColor #8b8f98
+skinparam ParticipantBorderColor #1b1d22
+
+actor Nutzer
+box "Frontend (TypeScript)" #1e2a40
+  participant Sidebar #4c8dff
+  participant App #2f6fe0
+end box
+box "Rust-Core" #3a2a1c
+  participant "create_note\n(Command)" as Cmd #e08a3c
+  participant "Mutex<Vault>" as Vault #c0692a
+end box
+database "Platte" as Disk
+
+Nutzer -[#dcdde0]> Sidebar : Klick auf "+"
+Sidebar -[#4c8dff]> App : onNewNote()
+App -[#4c8dff]> App : freien Namen wählen\n"Unbenannt.md", "Unbenannt 1.md", …
+App -[#4c8dff]> Cmd : commands.createNote(path)
+note right of Cmd : path ist ein VaultPath,\nalso schon geprüft
+Cmd -[#e08a3c]> Vault : lock()
+Vault -[#e08a3c]> Disk : OpenOptions::create_new(abs)
+alt #3a1e22 Datei existiert schon
+  Disk -[#e5534b]-> Vault : Fehler
+  Vault -[#e5534b]-> Cmd : Err(AlreadyExists)
+  Cmd -[#e5534b]-> App : { status: "error" }
+else #1c3326 angelegt
+  Disk -[#3fb27f]-> Vault : ok
+  Vault -[#e08a3c]> Vault : files.insert(path, hash)
+  Vault -[#3fb27f]-> Cmd : Ok(())
+  Cmd -[#e08a3c]> Cmd : VaultMeta::of(&vault)
+  Cmd -[#3fb27f]-> App : { status: "ok", data: VaultMeta }
+  App -[#4c8dff]> App : setVault(data)
+  App -[#4c8dff]> App : openNote(path)
+  App -[#3fb27f]-> Sidebar : neue Notiz erscheint, ist aktiv
+end
+@enduml
