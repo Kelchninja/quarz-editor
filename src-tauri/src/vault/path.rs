@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 /// Pfad relativ zum Vault-Root, immer mit '/' getrennt, immer UTF-8.
 /// Kein `.`, `..` oder leeres Segment, kann den Vault also nicht verlassen.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 // Deserialisieren läuft durch `TryFrom`, sonst könnte das Frontend `../..` schicken.
 #[serde(try_from = "String")]
 pub struct VaultPath(String);
@@ -67,24 +67,17 @@ impl fmt::Display for VaultPath {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum VaultPathError {
+    #[error("Pfad liegt außerhalb des Vaults")]
     OutsideVault,
+
+    #[error("Pfad ist kein gültiges UTF-8")]
     NotUtf8,
+
+    #[error("ungültiger Vault-Pfad: {0:?}")]
     Invalid(String),
 }
-
-impl fmt::Display for VaultPathError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::OutsideVault => f.write_str("Pfad liegt außerhalb des Vaults"),
-            Self::NotUtf8 => f.write_str("Pfad ist kein gültiges UTF-8"),
-            Self::Invalid(p) => write!(f, "ungültiger Vault-Pfad: {p:?}"),
-        }
-    }
-}
-
-impl std::error::Error for VaultPathError {}
 
 /// Unit Tests
 

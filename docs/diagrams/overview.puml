@@ -1,0 +1,106 @@
+@startuml Überblick quarz-editor
+' Grau = geplant, noch nicht im Code.
+skinparam class<<geplant>> {
+  BackgroundColor #EEEEEE
+  BorderColor #999999
+  FontColor #777777
+}
+hide empty members
+
+package "Frontend (TypeScript, SolidJS)" {
+  class App {
+    - content: Signal<string>
+    - activePath: Signal<string>
+    - openNote(path: string)
+  }
+
+  class Sidebar {
+    + title: string
+    + entries: Entry[]
+    + activePath: string
+    + onOpen(path: string)
+  }
+
+  class Editor {
+    + doc: string
+  }
+
+  class api <<module>> {
+    + openNote(path): Promise<string>
+    + getNoteTree(): Promise<Entry[]>
+  }
+
+  class Entry {
+    + path: string
+    + isDir: boolean
+  }
+}
+
+package "Rust-Core (Tauri)" {
+  class commands <<module>> {
+    + open_note(path: VaultPath, state): Result<String, String>
+    + get_note_tree(state): Vec<Entry> <<geplant>>
+  }
+
+  class AppState {
+    + vault: Vault
+  }
+
+  class Vault {
+    + root: PathBuf
+    + files: BTreeMap<VaultPath, ContentHash>
+    + open(root: PathBuf): Result<Vault, VaultError>
+  }
+
+  class Note {
+    - path: VaultPath
+    - source: String
+    - hash: ContentHash
+    + new(path, source): Note
+    + path(): &VaultPath
+    + source(): &str
+    + hash(): ContentHash
+  }
+
+  class VaultPath {
+    - String
+    + from_absolute(root, abs): Result<VaultPath, VaultPathError>
+    + to_absolute(root): PathBuf
+    + as_str(): &str
+  }
+
+  class ContentHash {
+    - [u8; 32]
+    + of(source: &str): ContentHash
+  }
+
+  enum VaultError {
+    NotFound(String)
+    Path(VaultPathError)
+    Io(io::Error)
+  }
+
+  enum VaultPathError {
+    OutsideVault
+    NotUtf8
+    Invalid(String)
+  }
+}
+
+App *-- Sidebar
+App *-- Editor
+App ..> api
+Sidebar ..> Entry
+api ..> commands : invoke (IPC)
+
+commands ..> AppState : State
+AppState *-- Vault
+Vault *-- "*" VaultPath
+Vault *-- "*" ContentHash
+Vault ..> Note : erzeugt, lädt, speichert
+Note *-- VaultPath
+Note *-- ContentHash
+Vault ..> VaultError
+VaultError o-- VaultPathError
+VaultPath ..> VaultPathError
+@enduml

@@ -1,0 +1,28 @@
+@startuml Vault and Note Relationship
+left to right direction
+
+class Vault {
+  - root: PathBuf
+  - files: BTreeMap<VaultPath, ContentHash>
+  + open(root: PathBuf): Result<Vault>
+  + paths(): Iterator<VaultPath>
+  + load(path: &VaultPath): Result<Note>
+  + save(note: &Note): Result<()>
+  + create_note(path: VaultPath): Result<Note>
+  + rename(from: &VaultPath, to: VaultPath): Result<()>
+  + delete(path: &VaultPath): Result<()>
+}
+
+class Note {
+  - path: VaultPath
+  - source: String
+  - hash: ContentHash
+  + new(path: VaultPath, source: String): Note
+  + path(): &VaultPath
+  + source(): &str
+  + hash(): ContentHash
+  + set_source(source: String)
+}
+
+Vault ..> Note : erzeugt, lädt, speichert
+@enduml
