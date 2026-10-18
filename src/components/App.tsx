@@ -28,7 +28,7 @@ function App() {
     else console.error("Vault konnte nicht geladen werden:", result.error);
   }
 
-  async function newFolder(name: string) {
+  async function newFolder(name: string, parent: string) {
     const current = vault();
     if (!current) return;
 
@@ -38,7 +38,8 @@ function App() {
     }
 
     // Gibt es den Namen schon, wird eine Zahl angehängt.
-    const path = freeName(current.folders, name);
+    const base = parent ? `${parent}/${name}` : name;
+    const path = freeName(current.folders, base);
     const result = await commands.createFolder(path);
     if (result.status === "ok") setVault(result.data);
     else console.error(`Ordner ${path} konnte nicht angelegt werden:`, result.error);

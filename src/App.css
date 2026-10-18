@@ -132,6 +132,15 @@ body,
   color: var(--text);
 }
 
+/* Zuletzt angeklickter Ordner */
+.tree-row.selected {
+  color: var(--accent);
+}
+
+.tree-row.selected .tree-chevron {
+  color: var(--accent);
+}
+
 .tree-row:focus-visible {
   outline: 1px solid var(--accent);
   outline-offset: -1px;
@@ -156,15 +165,20 @@ body,
   text-overflow: ellipsis;
 }
 
-/* Namensfeld beim Anlegen eines Ordners */
+/* Zeile beim Anlegen eines Ordners: ganze Zeile umrandet */
+.tree-row.editing {
+  background: var(--active);
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+  cursor: text;
+}
+
 .tree-input {
   flex: 1;
   min-width: 0;
-  padding: 1px 4px;
-  margin: -2px 0;
-  border: 1px solid var(--accent);
-  border-radius: 4px;
-  background: var(--bg);
+  padding: 0;
+  border: none;
+  background: none;
   font: inherit;
   color: var(--text);
   outline: none;

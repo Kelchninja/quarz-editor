@@ -1,4 +1,11 @@
-import { createMemo, createSignal, For, onMount, Show } from "solid-js";
+import {
+  createMemo,
+  createSignal,
+  For,
+  onCleanup,
+  onMount,
+  Show,
+} from "solid-js";
 import { ChevronRight, FolderPlus, Plus } from "lucide-solid";
 import type { NoteMeta, VaultMeta, VaultPath } from "../bindings";
 
@@ -7,7 +14,8 @@ type SidebarProps = {
   activePath?: string;
   onOpen: (path: string) => void;
   onNewNote?: () => void;
-  onCreateFolder?: (name: string) => void;
+  // parent = Pfad des Elternordners, "" = oberste Ebene.
+  onCreateFolder?: (name: string, parent: string) => void;
 };
 
 type TreeNode = {
@@ -22,14 +30,36 @@ function Sidebar(props: SidebarProps) {
     buildTree(props.vault.notes, props.vault.folders),
   );
   const [expanded, setExpanded] = createSignal(new Set<string>());
-  // true, solange der Name eines neuen Ordners eingegeben wird.
-  const [draftFolder, setDraftFolder] = createSignal(false);
+  // Elternordner, in dem gerade ein neuer Ordner benannt wird.
+  // null = keine Eingabe offen, "" = oberste Ebene.
+  const [draftParent, setDraftParent] = createSignal<string | null>(null);
+  // Zuletzt angeklickter Ordner.
+  const [selectedFolder, setSelectedFolder] = createSignal<string>();
+
+  // Klick irgendwo anders hebt die Ordner-Markierung auf.
+  // Ausnahmen: Ordnerzeilen und die Buttons oben, damit "Neuer Ordner" sie noch kennt.
+  function clearSelection(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (!target.closest(".tree-row.folder, .icon-button")) {
+      setSelectedFolder(undefined);
+    }
+  }
+
+  onMount(() => document.addEventListener("mousedown", clearSelection));
+  onCleanup(() => document.removeEventListener("mousedown", clearSelection));
 
   function toggle(path: string) {
     const next = new Set(expanded());
     if (next.has(path)) next.delete(path);
     else next.add(path);
     setExpanded(next);
+  }
+
+  // Startet die Eingabe im markierten Ordner und klappt ihn auf.
+  function startDraftFolder() {
+    const parent = selectedFolder() ?? "";
+    if (parent) setExpanded(new Set(expanded()).add(parent));
+    setDraftParent(parent);
   }
 
   function Item(itemProps: { node: TreeNode; depth: number }) {
@@ -43,11 +73,17 @@ function Sidebar(props: SidebarProps) {
           classList={{
             folder: node.isDir,
             active: !node.isDir && node.path === props.activePath,
+            selected: node.isDir && node.path === selectedFolder(),
           }}
           style={{ "--depth": itemProps.depth }}
-          onClick={() =>
-            node.isDir ? toggle(node.path) : props.onOpen(node.path)
-          }
+          onClick={() => {
+            if (node.isDir) {
+              setSelectedFolder(node.path);
+              toggle(node.path);
+            } else {
+              props.onOpen(node.path);
+            }
+          }}
         >
           <span class="tree-chevron" classList={{ open: isOpen() }}>
             <Show when={node.isDir}>
@@ -59,6 +95,9 @@ function Sidebar(props: SidebarProps) {
 
         <Show when={node.isDir && isOpen()}>
           <ul class="tree">
+            <Show when={draftParent() === node.path}>
+              <DraftFolder parent={node.path} depth={itemProps.depth + 1} />
+            </Show>
             <For each={node.children}>
               {(child) => <Item node={child} depth={itemProps.depth + 1} />}
             </For>
@@ -69,7 +108,7 @@ function Sidebar(props: SidebarProps) {
   }
 
   // Eingabezeile für den Namen eines neuen Ordners, wie im Datei-Explorer.
-  function DraftFolder() {
+  function DraftFolder(draftProps: { parent: string; depth: number }) {
     let input!: HTMLInputElement;
     let done = false;
 
@@ -83,18 +122,24 @@ function Sidebar(props: SidebarProps) {
     function commit() {
       if (done) return;
       done = true;
-      setDraftFolder(false);
-      props.onCreateFolder?.(input.value.trim() || "Neuer Ordner");
+      setDraftParent(null);
+      props.onCreateFolder?.(
+        input.value.trim() || "Neuer Ordner",
+        draftProps.parent,
+      );
     }
 
     function cancel() {
       done = true;
-      setDraftFolder(false);
+      setDraftParent(null);
     }
 
     return (
       <li>
-        <div class="tree-row folder" style={{ "--depth": 0 }}>
+        <div
+          class="tree-row folder editing"
+          style={{ "--depth": draftProps.depth }}
+        >
           <span class="tree-chevron">
             <ChevronRight size={14} />
           </span>
@@ -127,15 +172,15 @@ function Sidebar(props: SidebarProps) {
         <button
           class="icon-button"
           aria-label="Neuer Ordner"
-          onClick={() => setDraftFolder(true)}
+          onClick={startDraftFolder}
         >
           <FolderPlus size={16} />
         </button>
       </header>
 
       <ul class="tree">
-        <Show when={draftFolder()}>
-          <DraftFolder />
+        <Show when={draftParent() === ""}>
+          <DraftFolder parent="" depth={0} />
         </Show>
         <For each={tree()}>{(node) => <Item node={node} depth={0} />}</For>
       </ul>
