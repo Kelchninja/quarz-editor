@@ -2,7 +2,7 @@ import { EditorView } from "codemirror";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags } from "@lezer/highlight";
 
-// Farben kommen aus den CSS-Variablen in App.css.
+// Farben kommen aus den CSS-Variablen in styles/base.css.
 export const editorTheme = EditorView.theme(
   {
     "&": {

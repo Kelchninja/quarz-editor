@@ -28,6 +28,22 @@ async createFolder(path: VaultPath) : Promise<Result<VaultMeta, string>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async createNote(path: VaultPath) : Promise<Result<VaultMeta, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("create_note", { path }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async saveNote(content: string, path: VaultPath) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_note", { content, path }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 

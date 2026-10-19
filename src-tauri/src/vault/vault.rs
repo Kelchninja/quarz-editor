@@ -4,6 +4,7 @@ use walkdir::WalkDir;
 use crate::vault::folder::Folder;
 use crate::vault::note::ContentHash;
 use crate::vault::note::Note;
+use crate::vault::note::NoteDocument;
 use crate::vault::path::VaultPath;
 use crate::vault::path::VaultPathError;
 use std::collections::{BTreeMap, BTreeSet};
@@ -28,7 +29,6 @@ impl Vault {
     }
 
     // pub fn create(root: PathBuf) -> Result<Self, VaultError> {}
-    // pub fn add -> Result<_folder(path: VaultPath) -> Result<
     pub fn create_folder(&mut self, path: VaultPath) -> Result<Folder, VaultError> {
         let abs = path.to_absolute(&self.root);
         fs::create_dir(&abs)?;
@@ -37,11 +37,35 @@ impl Vault {
     }
 
     pub fn create_note(&mut self, path: VaultPath) -> Result<Note, VaultError> {
+        // Ohne .md würde der Scan die Datei beim nächsten Start nicht finden.
+        if !path.as_str().ends_with(".md") {
+            return Err(VaultError::NotMarkdown(path.to_string()));
+        }
         let abs = path.to_absolute(&self.root);
         fs::File::create_new(&abs)?;
         let hash = ContentHash::of("");
         self.files.insert(path.clone(), hash);
         Ok(Note::new(path, hash))
+    }
+
+    pub fn save_note(&mut self, content: &str, path: &VaultPath) -> Result<(), VaultError> {
+        let hash = self
+            .files
+            .get_mut(&path)
+            .ok_or_else(|| VaultError::NotFound(path.to_string()))?;
+
+        let abs = path.to_absolute(&self.root);
+        let tmp = abs.with_extension("md.tmp");
+        fs::write(&tmp, content)?;
+        fs::rename(&tmp, &abs)?;
+
+        *hash = ContentHash::of(content);
+        Ok(())
+    }
+
+    pub fn load(&self, path: VaultPath) -> Result<NoteDocument, VaultError> {
+        let source = fs::read_to_string(path.to_absolute(&self.root))?;
+        Ok(NoteDocument::new(path, source))
     }
 }
 
@@ -88,6 +112,9 @@ fn scan(root: &Path) -> Result<ScanResult, VaultError> {
 pub enum VaultError {
     #[error("Notiz nicht gefunden: {0}")]
     NotFound(String),
+
+    #[error("Notizen müssen auf .md enden: {0}")]
+    NotMarkdown(String),
 
     #[error(transparent)]
     Path(#[from] VaultPathError),

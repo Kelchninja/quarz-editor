@@ -1,7 +1,7 @@
 use crate::app::AppState;
+use crate::vault::entry::Editable;
 use crate::vault::meta::VaultMeta;
 use crate::vault::path::VaultPath;
-use crate::vault::vault::Vault;
 
 #[tauri::command]
 #[specta::specta]
@@ -9,13 +9,9 @@ pub async fn open_note(
     path: VaultPath,
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
-    // Schloss nur für den Pfad öffnen, nicht während des Lesens.
-    let abs: std::path::PathBuf = {
-        let vault = state.vault.lock().map_err(|e| e.to_string())?;
-        path.to_absolute(&vault.root)
-    };
-    let note_content: String = std::fs::read_to_string(abs).map_err(|e| e.to_string())?;
-    Ok(note_content)
+    let vault = state.vault.lock().map_err(|e| e.to_string())?;
+    let doc = vault.load(path).map_err(|e| e.to_string())?;
+    Ok(doc.source().to_string())
 }
 
 #[tauri::command]
@@ -35,4 +31,29 @@ pub async fn create_folder(
     let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
     vault.create_folder(path).map_err(|e| e.to_string())?;
     Ok(VaultMeta::of(&vault))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn create_note(
+    path: VaultPath,
+    state: tauri::State<'_, AppState>,
+) -> Result<VaultMeta, String> {
+    let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
+    vault.create_note(path).map_err(|e| e.to_string())?;
+    Ok(VaultMeta::of(&vault))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn save_note(
+    content: String,
+    path: VaultPath,
+    state: tauri::State<'_, AppState>,
+) -> Result<(), String> {
+    let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
+    vault
+        .save_note(&content, &path)
+        .map_err(|e| e.to_string())?;
+    Ok(())
 }

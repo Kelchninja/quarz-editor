@@ -16,7 +16,9 @@ pub fn run() {
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
         commands::vault::open_note,
         commands::vault::get_vault_meta,
-        commands::vault::create_folder
+        commands::vault::create_folder,
+        commands::vault::create_note,
+        commands::vault::save_note,
     ]);
 
     // Nur beim Entwickeln: schreibt die TS-Typen und Command-Funktionen.
