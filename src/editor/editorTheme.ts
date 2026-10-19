@@ -13,6 +13,25 @@ export const editorTheme = EditorView.theme(
     "&.cm-focused": {
       outline: "none",
     },
+
+    // Keine Ein-/Ausblend-Animation für Markdown-Zeichen.
+    // "&.cm-editor" macht die Regel spezifischer als die des Pakets.
+    "&.cm-editor .cm-formatting-block, &.cm-editor .cm-formatting-inline": {
+      transition: "none",
+    },
+
+    // Ohne Fokus keine Markdown-Zeichen zeigen. Sonst sieht man nach dem Öffnen
+    // das # in Zeile 1, weil der Cursor dort startet.
+    "&:not(.cm-focused) .cm-formatting-block-visible": {
+      fontSize: "0.01em",
+      opacity: "0",
+    },
+    "&:not(.cm-focused) .cm-formatting-inline-visible": {
+      maxWidth: "0",
+      margin: "0",
+      opacity: "0",
+      pointerEvents: "none",
+    },
     ".cm-scroller": {
       fontFamily: "var(--font-text)",
       lineHeight: "1.6",

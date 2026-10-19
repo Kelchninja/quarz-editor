@@ -1,0 +1,118 @@
+/* Tab-Leiste ganz oben über der ganzen Breite, wie im Mockup */
+.tab-bar {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+  height: 44px;
+  padding: 0 12px;
+  overflow-x: auto;
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--divider);
+}
+
+/* Logo links oben. Das Bild hat viel Rand, deshalb etwas größer. */
+.app-logo {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  margin-right: 12px;
+  object-fit: contain;
+  user-select: none;
+}
+
+/* Keine sichtbare Scrollleiste bei vielen Tabs */
+.tab-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  max-width: 220px;
+  height: 32px;
+  padding: 0 10px 0 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.tab:hover {
+  color: var(--text-soft);
+}
+
+/* Aktiver Tab: leicht hellere Fläche mit feinem Rahmen */
+.tab.active {
+  background: var(--bg);
+  border-color: var(--divider);
+  color: var(--text);
+}
+
+/* Vorschau-Tab: kursiv, wird beim nächsten Öffnen ersetzt */
+.tab.preview .tab-title {
+  font-style: italic;
+}
+
+/* Blauer Punkt vor dem aktiven Tab */
+.tab-dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.tab-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tab-close {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--text-muted);
+  visibility: hidden;
+  cursor: pointer;
+}
+
+/* Schließen-Knopf am aktiven Tab und beim Darüberfahren */
+.tab:hover .tab-close,
+.tab.active .tab-close {
+  visibility: visible;
+}
+
+.tab-close:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.tab-new {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.tab-new:hover {
+  background: var(--hover);
+  color: var(--text);
+}

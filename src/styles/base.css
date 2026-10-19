@@ -43,8 +43,17 @@ body,
   margin: 0;
 }
 
+/* Oben Tab-Leiste, darunter .app-body */
 .app {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sidebar links, Editor rechts */
+.app-body {
+  flex: 1;
+  min-height: 0;
   display: flex;
 }
 

@@ -1,15 +1,22 @@
 import { createEffect, onCleanup, onMount } from "solid-js";
 import { EditorView, basicSetup } from "codemirror";
 import { markdown } from "@codemirror/lang-markdown";
-import { EditorState } from "@codemirror/state";
 import { editorTheme, markdownHighlighting } from "../editor/editorTheme";
 import { type Action, actionKeymap } from "../editor/actions";
-import type { OpenDoc } from "../state/vault";
+import type { Sessions } from "../editor/sessions";
 import { collapseOnSelectionFacet, livePreviewPlugin, editorTheme as liveTheme, markdownStylePlugin, mouseSelectingField } from "codemirror-live-markdown"
+import { autosave } from "../editor/autosave";
 
 type EditorProps = {
-  doc?: OpenDoc;
+  tabs: string[];
+  activePath?: string;
+  // Text für einen Tab, der noch keinen gespeicherten State hat.
+  initialText: (path: string) => string;
+  sessions: Sessions;
   actions?: Action[];
+  onSave: (path: string, text: string) => void;
+  // Bei jeder Textänderung, z. B. um einen Vorschau-Tab festzumachen.
+  onEdit?: (path: string) => void;
 };
 
 function Editor(props: EditorProps) {
@@ -26,14 +33,25 @@ function Editor(props: EditorProps) {
     markdownStylePlugin,
     liveTheme,
     actionKeymap(props.actions ?? []),
+    autosave(() => props.activePath, props.onSave),
+    EditorView.updateListener.of((update) => {
+      if (update.docChanged && props.activePath) props.onEdit?.(props.activePath);
+    }),
   ];
 
   onMount(() => {
     const view = new EditorView({ parent: container });
+    props.sessions.attach(view);
 
+    // Geschlossene Tabs aus dem Cache werfen.
     createEffect(() => {
-      const text = props.doc?.text ?? "";
-      view.setState(EditorState.create({ doc: text, extensions }));
+      props.sessions.retain(new Set(props.tabs));
+    });
+
+    // Bei jedem Tab-Wechsel den passenden State zeigen.
+    createEffect(() => {
+      const path = props.activePath;
+      props.sessions.show(path, () => props.initialText(path ?? ""), extensions);
     });
 
     onCleanup(() => view.destroy());

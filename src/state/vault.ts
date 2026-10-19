@@ -1,16 +1,19 @@
 import { createSignal } from "solid-js";
 import { commands, type VaultMeta } from "../bindings";
 
-// Die geöffnete Notiz. Jedes Öffnen erzeugt ein neues Objekt, damit der
-// Editor auch reagiert, wenn zwei Notizen denselben Text haben.
-export type OpenDoc = { path: string; text: string };
-
 // Zustand und Logik rund um den Vault. App.tsx erzeugt den Store einmal
 // und reicht ihn weiter, statt selbst alles zu machen.
 export function createVaultStore() {
   const [vault, setVault] = createSignal<VaultMeta>();
-  const [doc, setDoc] = createSignal<OpenDoc>();
-  const activePath = () => doc()?.path;
+  // Offene Tabs als Pfade, in Reihenfolge der Tab-Leiste.
+  const [tabs, setTabs] = createSignal<string[]>([]);
+  const [activePath, setActivePath] = createSignal<string>();
+  // Vorschau-Tab wie in VS Code: wird beim nächsten Öffnen ersetzt,
+  // bis man darin etwas ändert. Höchstens einer.
+  const [previewPath, setPreviewPath] = createSignal<string>();
+  // Zuletzt gespeicherter bzw. geladener Text pro Tab.
+  // Damit weiß closeTab, ob es ungespeicherte Änderungen gibt.
+  const savedText = new Map<string, string>();
 
   async function loadVault() {
     const result = await commands.getVaultMeta();
@@ -18,19 +21,83 @@ export function createVaultStore() {
     else console.error("Vault konnte nicht geladen werden:", result.error);
   }
 
-  async function openNote(path: string) {
-    const result = await commands.openNote(path);
-    if (result.status === "ok") setDoc({ path, text: result.data });
-    else console.error(`Konnte ${path} nicht öffnen:`, result.error);
+  // Öffnet die Notiz als Vorschau-Tab oder wechselt zu ihrem Tab.
+  // Ein bestehender Vorschau-Tab wird dabei ersetzt.
+  // `pinned`: gleich als festen Tab öffnen (z. B. bei neuen Notizen).
+  async function openNote(path: string, pinned = false) {
+    if (!tabs().includes(path)) {
+      const result = await commands.openNote(path);
+      if (result.status === "error") {
+        console.error(`Konnte ${path} nicht öffnen:`, result.error);
+        return;
+      }
+      savedText.set(path, result.data);
+
+      const list = tabs();
+      const preview = previewPath();
+      const index = preview ? list.indexOf(preview) : -1;
+      if (index !== -1) {
+        // Vorschau-Tab an derselben Stelle ersetzen.
+        savedText.delete(preview!);
+        setTabs(list.map((p, i) => (i === index ? path : p)));
+      } else {
+        setTabs([...list, path]);
+      }
+      setPreviewPath(pinned ? undefined : path);
+    } else if (pinned) {
+      pinTab(path);
+    }
+    setActivePath(path);
   }
 
-  async function saveNote(text: string) {
-    const path = activePath();
-    if (!path) return;
+  // Macht aus dem Vorschau-Tab einen festen Tab.
+  function pinTab(path: string) {
+    if (previewPath() === path) setPreviewPath(undefined);
+  }
+
+  // Text, mit dem der Editor einen neuen Tab füllt.
+  function initialText(path: string): string {
+    return savedText.get(path) ?? "";
+  }
+
+  async function saveNote(path: string, text: string) {
     const result = await commands.saveNote(text, path);
-    if (result.status === "error") {
-      console.error(`Konnte ${path} nicht speichern:`, result.error);
+    if (result.status === "ok") savedText.set(path, text);
+    else console.error(`Konnte ${path} nicht speichern:`, result.error);
+  }
+
+  // Schließt einen Tab. `text` ist der aktuelle Inhalt aus dem Editor;
+  // ist er geändert, wird vorher gespeichert.
+  async function closeTab(path: string, text?: string) {
+    if (text !== undefined && text !== savedText.get(path)) {
+      await saveNote(path, text);
     }
+
+    const list = tabs();
+    const index = list.indexOf(path);
+    if (index === -1) return;
+
+    const rest = list.filter((p) => p !== path);
+    savedText.delete(path);
+    if (previewPath() === path) setPreviewPath(undefined);
+    setTabs(rest);
+    // Wie im Browser: der Tab rechts daneben wird aktiv, sonst der links.
+    if (activePath() === path) setActivePath(rest[Math.min(index, rest.length - 1)]);
+  }
+
+  // Tab Nummer `index` (0-basiert) aktivieren, falls es ihn gibt.
+  function activateTab(index: number) {
+    const path = tabs()[index];
+    if (path) setActivePath(path);
+  }
+
+  // Zum nächsten (+1) oder vorherigen (-1) Tab, am Ende wieder von vorn.
+  function cycleTab(step: 1 | -1) {
+    const list = tabs();
+    const current = activePath();
+    if (list.length === 0 || !current) return;
+    const index = list.indexOf(current);
+    setActivePath(list[(index + step + list.length) % list.length]);
   }
 
   async function newFolder(name: string, parent: string) {
@@ -68,7 +135,8 @@ export function createVaultStore() {
     const result = await commands.createNote(path);
     if (result.status === "ok") {
       setVault(result.data);
-      openNote(path);
+      // Neue Notizen wie in VS Code gleich als festen Tab.
+      openNote(path, true);
     } else {
       console.error(`Notiz ${path} konnte nicht angelegt werden:`, result.error);
     }
@@ -76,11 +144,17 @@ export function createVaultStore() {
 
   return {
     vault,
-    doc,
+    tabs,
     activePath,
+    previewPath,
+    pinTab,
     loadVault,
     openNote,
+    initialText,
     saveNote,
+    closeTab,
+    activateTab,
+    cycleTab,
     newFolder,
     newNote,
   };
