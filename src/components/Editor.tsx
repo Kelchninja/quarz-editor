@@ -3,9 +3,9 @@ import { EditorView, basicSetup } from "codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { EditorState } from "@codemirror/state";
 import { editorTheme, markdownHighlighting } from "../editor/editorTheme";
-import { hideHeadingMarks } from "../editor/livePreview";
 import { type Action, actionKeymap } from "../editor/actions";
 import type { OpenDoc } from "../state/vault";
+import { collapseOnSelectionFacet, livePreviewPlugin, editorTheme as liveTheme, markdownStylePlugin, mouseSelectingField } from "codemirror-live-markdown"
 
 type EditorProps = {
   doc?: OpenDoc;
@@ -20,14 +20,17 @@ function Editor(props: EditorProps) {
     markdown(),
     editorTheme,
     markdownHighlighting,
-    hideHeadingMarks,
+    collapseOnSelectionFacet.of(true),
+    mouseSelectingField,
+    livePreviewPlugin,
+    markdownStylePlugin,
+    liveTheme,
     actionKeymap(props.actions ?? []),
   ];
 
   onMount(() => {
     const view = new EditorView({ parent: container });
 
-    // Läuft bei jedem Öffnen einer Notiz, weil doc dann ein neues Objekt ist.
     createEffect(() => {
       const text = props.doc?.text ?? "";
       view.setState(EditorState.create({ doc: text, extensions }));

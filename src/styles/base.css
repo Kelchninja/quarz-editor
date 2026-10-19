@@ -1,7 +1,7 @@
 :root {
   --bg: #1b1d22;
   --bg-sidebar: #16181c;
-  --border: #2a2d34;
+  --divider: #2a2d34;
   --text: #dcdde0;
   --text-muted: #8b8f98;
   --accent: #4c8dff;
@@ -13,6 +13,14 @@
   --font-text: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --line-width: 700px;
+
+  /* Für codemirror-live-markdown: nur die HSL-Zahlen, ohne hsl(). */
+  --foreground: 225 6% 87%; /* = --text */
+  --muted-foreground: 222 6% 57%; /* = --text-muted, für ###, **, __ */
+  --primary: 218 100% 65%; /* = --accent */
+  --background: 223 11% 12%; /* = --bg */
+  --muted: 220 11% 15%; /* Hintergrund für Inline-Code */
+  --border: 222 11% 18%; /* = --divider */
 
   color-scheme: dark;
   font-family: var(--font-text);

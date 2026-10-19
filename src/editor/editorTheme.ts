@@ -42,7 +42,7 @@ export const editorTheme = EditorView.theme(
       },
     ".cm-selectionMatch": {
       backgroundColor: "transparent",
-      outline: "1px solid var(--border)",
+      outline: "1px solid var(--divider)",
     },
 
     // Suchleiste (Mod+F) und Popups (Autocomplete).
@@ -51,11 +51,11 @@ export const editorTheme = EditorView.theme(
       color: "var(--text)",
     },
     ".cm-panels.cm-panels-bottom": {
-      borderTop: "1px solid var(--border)",
+      borderTop: "1px solid var(--divider)",
     },
     ".cm-tooltip": {
       backgroundColor: "var(--bg-sidebar)",
-      border: "1px solid var(--border)",
+      border: "1px solid var(--divider)",
       borderRadius: "6px",
     },
     ".cm-tooltip-autocomplete > ul > li[aria-selected]": {
