@@ -1,6 +1,6 @@
 use crate::app::AppState;
 use crate::vault::entry::Editable;
-use crate::vault::meta::VaultMeta;
+use crate::vault::meta::{NoteMeta, VaultMeta};
 use crate::vault::path::VaultPath;
 
 #[tauri::command]
@@ -56,4 +56,12 @@ pub async fn save_note(
         .save_note(&content, &path)
         .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+pub async fn change_note_meta(
+    meta: NoteMeta,
+    state: tauri::State<'_, AppState>,
+) -> Result<(), String> {
+    let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
+    vault.loa
 }

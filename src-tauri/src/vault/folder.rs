@@ -8,7 +8,7 @@ pub struct Folder {
 }
 
 impl Folder {
-    /// Neuer, leerer Ordner.
+    /// Creates a new, empty folder.
     pub fn new(path: VaultPath) -> Self {
         Self {
             meta: EntryMeta::new(path),

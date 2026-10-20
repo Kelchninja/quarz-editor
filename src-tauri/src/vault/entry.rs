@@ -1,8 +1,6 @@
 use crate::vault::{folder::Folder, note::Note, path::VaultPath};
 
-// enums
-
-/// Ein Eintrag im Vault-Baum. Enthält nur leichte Daten, keinen Notiztext.
+/// An entry in the vault tree. Holds only lightweight data, no note text.
 #[derive(Debug, Clone)]
 pub enum VaultEntry {
     Folder(Folder),
@@ -14,24 +12,21 @@ pub enum File {
     Note(Note), // Pdf(Pdf)
 }
 
-// structs
-
 #[derive(Debug, Clone)]
 pub struct EntryMeta {
     pub path: VaultPath,
     pub name: String,
 }
 
-// traits
 pub trait Editable {
     fn source(&self) -> &str;
     fn set_source(&mut self, text: String);
 }
 
-// Implementations
-
 impl EntryMeta {
-    /// Name = letzter Teil des Pfads, z. B. "goober.md".
+    /// Creates the metadata for `path`.
+    ///
+    /// `name` is the last segment of the path, e.g. `"goober.md"`.
     pub fn new(path: VaultPath) -> Self {
         let name = path
             .as_str()

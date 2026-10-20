@@ -4,9 +4,9 @@ use crate::vault::{
 };
 use blake3;
 
-// ContentHash
+/// BLAKE3 hash of a note's content.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct ContentHash([u8; 32]); // blake3
+pub struct ContentHash([u8; 32]);
 
 impl ContentHash {
     pub fn of(source: &str) -> Self {
@@ -14,12 +14,9 @@ impl ContentHash {
     }
 }
 
-// Note
-
-/// Eine Notiz im Vault-Baum, ohne Text.
+/// A note in the vault tree, without text.
 #[derive(Debug, Clone)]
 pub struct Note {
-    // pub, weil File::meta() in entry.rs darauf zugreift.
     pub meta: EntryMeta,
     hash: ContentHash,
 }
@@ -41,9 +38,7 @@ impl Note {
     }
 }
 
-// NoteDocument
-
-/// Eine geöffnete Notiz mit ihrem Text. Gibt es nur für offene Notizen.
+/// An opened note with its text. Only exists for open notes.
 #[derive(Debug, Clone)]
 pub struct NoteDocument {
     pub note: Note,
@@ -62,8 +57,8 @@ impl Editable for NoteDocument {
         &self.source
     }
 
+    /// Replaces the text and updates the content hash.
     fn set_source(&mut self, text: String) {
-        // Neuer Inhalt, also neuer Hash.
         self.note.hash = ContentHash::of(&text);
         self.source = text;
     }

@@ -3,25 +3,30 @@ use std::path::{Component, Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
-/// Pfad relativ zum Vault-Root, immer mit '/' getrennt, immer UTF-8.
-/// Kein `.`, `..` oder leeres Segment, kann den Vault also nicht verlassen.
+/// Path relative to the vault root, always separated by `/` and always UTF-8.
+///
+/// Contains no `.`, `..` or empty segments, so it can never leave the vault.
+/// Deserialization goes through [`TryFrom`], otherwise the frontend could send `../..`.
 #[derive(
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, specta::Type,
 )]
-// Deserialisieren läuft durch `TryFrom`, sonst könnte das Frontend `../..` schicken.
 #[serde(try_from = "String")]
 pub struct VaultPath(String);
 
 impl VaultPath {
-    /// Für Pfade vom Dateisystem (Dateibaum, Watcher).
-    /// `root` und `abs` müssen gleich aufgebaut sein, Symlinks werden nicht aufgelöst.
+    /// Creates a vault path from a filesystem path (file tree, watcher).
+    ///
+    /// `root` and `abs` must be built the same way, symlinks are not resolved.
+    ///
+    /// # Errors
+    /// [`VaultPathError::OutsideVault`] if `abs` is not inside `root`,
+    /// [`VaultPathError::NotUtf8`] if a segment is not valid UTF-8.
     pub fn from_absolute(root: &Path, abs: &Path) -> Result<Self, VaultPathError> {
-        // Komponentenweise: `/vault` ist kein Präfix von `/vault2/a.md`.
+        // Component-wise: `/vault` is not a prefix of `/vault2/a.md`.
         let rel = abs
             .strip_prefix(root)
             .map_err(|_| VaultPathError::OutsideVault)?;
 
-        // Bricht beim ersten Nicht-UTF-8-Segment ab.
         let segments = rel
             .components()
             .map(|c| c.as_os_str().to_str().ok_or(VaultPathError::NotUtf8))
@@ -30,7 +35,9 @@ impl VaultPath {
         Self::try_from(segments.join("/"))
     }
 
-    /// Nur im Vault-Service direkt vor `std::fs`-Aufrufen verwenden.
+    /// Converts to an absolute filesystem path below `root`.
+    ///
+    /// Only use inside the vault service, directly before `std::fs` calls.
     pub fn to_absolute(&self, root: &Path) -> PathBuf {
         let mut abs = root.to_path_buf();
         abs.extend(self.0.split('/'));
@@ -45,8 +52,10 @@ impl VaultPath {
 impl TryFrom<String> for VaultPath {
     type Error = VaultPathError;
 
+    /// Validates every `/`-separated segment.
+    ///
+    /// An empty string, `/abs`, `a//b` and `a/` are rejected because they contain empty segments.
     fn try_from(s: String) -> Result<Self, Self::Error> {
-        // Leerer String, `/abs`, `a//b` und `a/` ergeben leere Segmente.
         if !s.split('/').all(is_valid_segment) {
             return Err(VaultPathError::Invalid(s));
         }
@@ -54,7 +63,9 @@ impl TryFrom<String> for VaultPath {
     }
 }
 
-/// Genau ein normaler Pfadbestandteil. Lehnt auch `C:` und `a\b` unter Windows ab.
+/// Returns `true` if `segment` is exactly one normal path component.
+///
+/// Also rejects `C:` and `a\b` on Windows.
 fn is_valid_segment(segment: &str) -> bool {
     let mut components = Path::new(segment).components();
     matches!(
@@ -80,8 +91,6 @@ pub enum VaultPathError {
     #[error("ungültiger Vault-Pfad: {0:?}")]
     Invalid(String),
 }
-
-/// Unit Tests
 
 #[cfg(test)]
 mod tests {

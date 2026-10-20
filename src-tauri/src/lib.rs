@@ -21,7 +21,7 @@ pub fn run() {
         commands::vault::save_note,
     ]);
 
-    // Nur beim Entwickeln: schreibt die TS-Typen und Command-Funktionen.
+    // Debug builds only: writes the TS types and command functions.
     #[cfg(debug_assertions)]
     builder
         .export(Typescript::default(), "../src/bindings.ts")

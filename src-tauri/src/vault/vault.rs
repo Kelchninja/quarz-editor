@@ -11,10 +11,13 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+/// In-memory index of a vault folder on disk.
+///
+/// `files` maps every markdown note to its content hash,
+/// `folders` contains all folders, including empty ones.
 pub struct Vault {
     pub root: PathBuf,
     pub files: BTreeMap<VaultPath, ContentHash>,
-    // Alle Ordner, auch leere.
     pub folders: BTreeSet<VaultPath>,
 }
 
@@ -36,8 +39,12 @@ impl Vault {
         Ok(Folder::new(path))
     }
 
+    /// Creates an empty note at `path`.
+    ///
+    /// # Errors
+    /// [`VaultError::NotMarkdown`] if `path` does not end with `.md`,
+    /// otherwise the scan would not find the file on the next start.
     pub fn create_note(&mut self, path: VaultPath) -> Result<Note, VaultError> {
-        // Ohne .md würde der Scan die Datei beim nächsten Start nicht finden.
         if !path.as_str().ends_with(".md") {
             return Err(VaultError::NotMarkdown(path.to_string()));
         }
@@ -115,6 +122,9 @@ fn is_hidden(entry: &DirEntry) -> bool {
 
 type ScanResult = (BTreeMap<VaultPath, ContentHash>, BTreeSet<VaultPath>);
 
+/// Walks `root` recursively and collects all markdown notes and folders.
+///
+/// Hidden entries (starting with `.`) are skipped, `root` itself is not included.
 fn scan(root: &Path) -> Result<ScanResult, VaultError> {
     let mut files = BTreeMap::new();
     let mut folders = BTreeSet::new();
@@ -125,7 +135,6 @@ fn scan(root: &Path) -> Result<ScanResult, VaultError> {
     {
         let entry = entry.map_err(std::io::Error::from)?;
 
-        // Tiefe 0 ist der Vault-Ordner selbst.
         if entry.depth() == 0 {
             continue;
         }
