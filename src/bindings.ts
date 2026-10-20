@@ -58,16 +58,18 @@ async saveNote(content: string, path: VaultPath) : Promise<Result<null, string>>
 /** user-defined types **/
 
 /**
- * Leichte Sicht auf eine Notiz fürs Frontend, ohne Inhalt.
+ * Lightweight view of a note for the frontend, without content.
  */
 export type NoteMeta = { path: VaultPath; title: string }
 /**
- * Leichte Sicht auf den Vault fürs Frontend.
+ * Lightweight view of the vault for the frontend.
  */
 export type VaultMeta = { name: string; notes: NoteMeta[]; folders: VaultPath[] }
 /**
- * Pfad relativ zum Vault-Root, immer mit '/' getrennt, immer UTF-8.
- * Kein `.`, `..` oder leeres Segment, kann den Vault also nicht verlassen.
+ * Path relative to the vault root, always separated by `/` and always UTF-8.
+ * 
+ * Contains no `.`, `..` or empty segments, so it can never leave the vault.
+ * Deserialization goes through [`TryFrom`], otherwise the frontend could send `../..`.
  */
 export type VaultPath = string
 

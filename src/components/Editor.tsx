@@ -1,9 +1,19 @@
 import { createEffect, onCleanup, onMount } from "solid-js";
 import { EditorView, basicSetup } from "codemirror";
-import { editorTheme, markdownExt, markdownHighlighting } from "../editor/editorTheme";
+import {
+  editorTheme,
+  markdownExt,
+  markdownHighlighting,
+} from "../editor/editorTheme";
 import { type Action, actionKeymap } from "../editor/actions";
 import type { Sessions } from "../editor/sessions";
-import { collapseOnSelectionFacet, livePreviewPlugin, editorTheme as liveTheme, markdownStylePlugin, mouseSelectingField } from "codemirror-live-markdown"
+import {
+  collapseOnSelectionFacet,
+  livePreviewPlugin,
+  editorTheme as liveTheme,
+  markdownStylePlugin,
+  mouseSelectingField,
+} from "codemirror-live-markdown";
 import { autosave } from "../editor/autosave";
 
 type EditorProps = {
@@ -34,7 +44,8 @@ function Editor(props: EditorProps) {
     actionKeymap(props.actions ?? []),
     autosave(() => props.activePath, props.onSave),
     EditorView.updateListener.of((update) => {
-      if (update.docChanged && props.activePath) props.onEdit?.(props.activePath);
+      if (update.docChanged && props.activePath)
+        props.onEdit?.(props.activePath);
     }),
   ];
 
@@ -50,13 +61,22 @@ function Editor(props: EditorProps) {
     // Bei jedem Tab-Wechsel den passenden State zeigen.
     createEffect(() => {
       const path = props.activePath;
-      props.sessions.show(path, () => props.initialText(path ?? ""), extensions);
+      props.sessions.show(
+        path,
+        () => props.initialText(path ?? ""),
+        extensions,
+      );
     });
 
     onCleanup(() => view.destroy());
   });
 
-  return <div ref={container} class="editor" />;
+  return (
+    <>
+      <input></input>
+      <div ref={container} class="editor" />
+    </>
+  );
 }
 
 export default Editor;

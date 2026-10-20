@@ -58,10 +58,16 @@ pub async fn save_note(
     Ok(())
 }
 
-pub async fn change_note_meta(
-    meta: NoteMeta,
+#[tauri::command]
+#[specta::specta]
+pub async fn change_note_name(
+    path: VaultPath,
+    name: &str,
     state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
     let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
-    vault.loa
+    vault
+        .change_note_name(name, &path)
+        .map_err(|e| e.to_string())?;
+    Ok(())
 }
