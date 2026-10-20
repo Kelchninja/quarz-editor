@@ -1,5 +1,5 @@
 import { For, Show } from "solid-js";
-import { Plus, X } from "lucide-solid";
+import { X } from "lucide-solid";
 import "../styles/tabs.css";
 
 type TabBarProps = {
@@ -9,7 +9,6 @@ type TabBarProps = {
   onSelect: (path: string) => void;
   onPin?: (path: string) => void;
   onClose: (path: string) => void;
-  onNew?: () => void;
 };
 
 // "Ordner/Notiz.md" → "Notiz"
@@ -61,10 +60,6 @@ function TabBar(props: TabBarProps) {
           );
         }}
       </For>
-
-      <button class="tab-new" aria-label="Neue Notiz" onClick={() => props.onNew?.()}>
-        <Plus size={16} />
-      </button>
     </nav>
   );
 }

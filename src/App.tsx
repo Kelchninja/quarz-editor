@@ -30,9 +30,7 @@ function App() {
         previewPath={store.previewPath()}
         onSelect={store.openNote}
         onPin={store.pinTab}
-        onClose={closeTab}
-        onNew={() => store.newNote("Unbenannt", "")}
-      />
+        onClose={closeTab}      />
       <div class="app-body">
         <Show when={store.vault()}>
           {(v) => (
