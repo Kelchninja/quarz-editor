@@ -1,5 +1,6 @@
 import { EditorView } from "codemirror";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { markdown } from "@codemirror/lang-markdown";
 import { tags } from "@lezer/highlight";
 
 // Farben kommen aus den CSS-Variablen in styles/base.css.
@@ -87,9 +88,24 @@ export const editorTheme = EditorView.theme(
 
 // Ersetzt den Standardstil aus basicSetup komplett.
 const markdownStyle = HighlightStyle.define([
-  { tag: tags.heading1, fontSize: "1.8em", fontWeight: "700", lineHeight: "1.3" },
-  { tag: tags.heading2, fontSize: "1.6em", fontWeight: "700", lineHeight: "1.3" },
-  { tag: tags.heading3, fontSize: "1.4em", fontWeight: "700", lineHeight: "1.3" },
+  {
+    tag: tags.heading1,
+    fontSize: "1.8em",
+    fontWeight: "700",
+    lineHeight: "1.3",
+  },
+  {
+    tag: tags.heading2,
+    fontSize: "1.6em",
+    fontWeight: "700",
+    lineHeight: "1.3",
+  },
+  {
+    tag: tags.heading3,
+    fontSize: "1.4em",
+    fontWeight: "700",
+    lineHeight: "1.3",
+  },
   { tag: tags.heading4, fontSize: "1.25em", fontWeight: "700" },
   { tag: tags.heading5, fontSize: "1.1em", fontWeight: "700" },
   { tag: tags.heading6, fontSize: "1em", fontWeight: "700" },
@@ -105,5 +121,11 @@ const markdownStyle = HighlightStyle.define([
   { tag: tags.quote, color: "var(--text-muted)" },
   { tag: tags.contentSeparator, color: "var(--text-muted)" },
 ]);
+
+export const markdownExt = markdown({
+  extensions: {
+    remove: ["SetextHeading"],
+  },
+});
 
 export const markdownHighlighting = syntaxHighlighting(markdownStyle);

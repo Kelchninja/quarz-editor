@@ -1,7 +1,6 @@
 import { createEffect, onCleanup, onMount } from "solid-js";
 import { EditorView, basicSetup } from "codemirror";
-import { markdown } from "@codemirror/lang-markdown";
-import { editorTheme, markdownHighlighting } from "../editor/editorTheme";
+import { editorTheme, markdownExt, markdownHighlighting } from "../editor/editorTheme";
 import { type Action, actionKeymap } from "../editor/actions";
 import type { Sessions } from "../editor/sessions";
 import { collapseOnSelectionFacet, livePreviewPlugin, editorTheme as liveTheme, markdownStylePlugin, mouseSelectingField } from "codemirror-live-markdown"
@@ -24,7 +23,7 @@ function Editor(props: EditorProps) {
   let container!: HTMLDivElement;
   const extensions = [
     basicSetup,
-    markdown(),
+    markdownExt,
     editorTheme,
     markdownHighlighting,
     collapseOnSelectionFacet.of(true),
