@@ -63,6 +63,46 @@ impl Vault {
         Ok(())
     }
 
+    pub fn change_note_name(&mut self, name: &str, path: &VaultPath) -> Result<(), VaultError> {
+        if !path.as_str().ends_with(".md") {
+            return Err(VaultError::NotMarkdown(path.to_string()));
+        }
+        if name.is_empty() || name.contains('/') {
+            return Err(VaultError::NotAllowed(name.to_string()));
+        }
+
+        let file_name = format!("{name}.md");
+        let new_path = match path.as_str().rsplit_once('/') {
+            Some((parent, _)) => format!("{parent}/{file_name}"),
+            None => file_name,
+        };
+        let new_path =
+            VaultPath::try_from(new_path).map_err(|_| VaultError::NotAllowed(name.to_string()))?;
+
+        if new_path == *path {
+            return Ok(());
+        }
+
+        let hash = *self
+            .files
+            .get(path)
+            .ok_or_else(|| VaultError::NotFound(path.to_string()))?;
+
+        let abs = path.to_absolute(&self.root);
+        let new_abs = new_path.to_absolute(&self.root);
+
+        let only_case_changed = new_path.as_str().to_lowercase() == path.as_str().to_lowercase();
+        if self.files.contains_key(&new_path) || (new_abs.exists() && !only_case_changed) {
+            return Err(VaultError::AlreadyExists(new_path.to_string()));
+        }
+
+        fs::rename(&abs, &new_abs)?;
+
+        self.files.remove(path);
+        self.files.insert(new_path, hash);
+        Ok(())
+    }
+
     pub fn load(&self, path: VaultPath) -> Result<NoteDocument, VaultError> {
         let source = fs::read_to_string(path.to_absolute(&self.root))?;
         Ok(NoteDocument::new(path, source))
@@ -121,4 +161,10 @@ pub enum VaultError {
 
     #[error(transparent)]
     Io(#[from] std::io::Error),
+
+    #[error("Name is not allowed: {0}")]
+    NotAllowed(String),
+
+    #[error("Notiz existiert bereits: {0}")]
+    AlreadyExists(String),
 }
