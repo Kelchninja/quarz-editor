@@ -22,7 +22,7 @@
     "@tauri-apps/plugin-dialog": "^2.8.2",
     "@tauri-apps/plugin-opener": "^2",
     "codemirror": "^6.0.2",
-    "codemirror-live-markdown": "^0.5.1-alpha.1",
+    "codemirror-live-markdown": "github:Kelchninja/codemirror-live-markdown#feat/list-markers",
     "lucide-solid": "^1.58.0",
     "solid-js": "^1.9.3"
   },
