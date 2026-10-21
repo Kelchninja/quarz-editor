@@ -1,13 +1,12 @@
 import { createEffect, onCleanup, onMount } from "solid-js";
 import { EditorView, basicSetup } from "codemirror";
-import {
-  editorTheme,
-  markdownExt,
-  markdownHighlighting,
-} from "../editor/editorTheme";
+import { editorTheme, markdownHighlighting } from "../editor/editorTheme";
 import { type Action, actionKeymap } from "../editor/actions";
 import type { Tabs } from "../state/tabs";
+import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import {
+  blockMathField,
+  codeBlockField,
   collapseOnSelectionFacet,
   livePreviewPlugin,
   editorTheme as liveTheme,
@@ -28,6 +27,25 @@ function Editor(props: EditorProps) {
   // Solid assigns the real elements on render.
   let container!: HTMLDivElement;
   let titleInput!: HTMLTextAreaElement;
+
+  const markdownExt = markdown({
+    base: markdownLanguage,
+    extensions: {
+      remove: ["SetextHeading"],
+    },
+  });
+
+  const actionKeymapExt = actionKeymap(props.actions ?? []);
+  const titleKeymapExt = titleKeymap(() => focusAtEnd(titleInput));
+  const autosaveExt = autosave(props.tabs.activePath, props.tabs.save);
+
+  const editorUpdateListenerExt = EditorView.updateListener.of((update) => {
+    const path = props.tabs.activePath();
+    if (update.docChanged && path) props.tabs.pin(path);
+  });
+
+  const codeBlockFieldExt = codeBlockField({ copyButton: true });
+
   const extensions = [
     basicSetup,
     markdownExt,
@@ -39,14 +57,12 @@ function Editor(props: EditorProps) {
     markdownStylePlugin,
     liveTheme,
     mathPlugin,
-    actionKeymap(props.actions ?? []),
-    titleKeymap(() => focusAtEnd(titleInput)),
-    autosave(props.tabs.activePath, props.tabs.save),
-    // Editing a preview tab pins it.
-    EditorView.updateListener.of((update) => {
-      const path = props.tabs.activePath();
-      if (update.docChanged && path) props.tabs.pin(path);
-    }),
+    blockMathField,
+    actionKeymapExt,
+    titleKeymapExt,
+    autosaveExt,
+    editorUpdateListenerExt,
+    codeBlockFieldExt
   ];
 
   let view: EditorView | undefined;

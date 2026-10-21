@@ -1,6 +1,5 @@
 import { EditorView } from "codemirror";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
-import { markdown } from "@codemirror/lang-markdown";
 import { tags } from "@lezer/highlight";
 
 /** Colors come from the CSS variables in styles/base.css. */
@@ -121,10 +120,6 @@ const markdownStyle = HighlightStyle.define([
   { tag: tags.contentSeparator, color: "var(--text-muted)" },
 ]);
 
-export const markdownExt = markdown({
-  extensions: {
-    remove: ["SetextHeading"],
-  },
-});
+
 
 export const markdownHighlighting = syntaxHighlighting(markdownStyle);

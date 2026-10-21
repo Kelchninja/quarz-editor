@@ -1,5 +1,6 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
 import App from "./App";
+import { setupLibraries } from "./setup";
 
-render(() => <App />, document.getElementById("root") as HTMLElement);
+setupLibraries().then(() => render(() => <App />, document.getElementById("root") as HTMLElement));
