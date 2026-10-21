@@ -18,7 +18,7 @@ type SidebarProps = {
   vault: VaultMeta;
   activePath?: string;
   onOpen: (path: string) => void;
-  // parent = Pfad des Elternordners, "" = oberste Ebene.
+  /** `parent` is the folder path, "" for the top level. */
   onCreateFolder?: (name: string, parent: string) => void;
   onCreateNote?: (name: string, parent: string) => void;
 };
@@ -28,13 +28,13 @@ function Sidebar(props: SidebarProps) {
     buildTree(props.vault.notes, props.vault.folders),
   );
   const [expanded, setExpanded] = createSignal(new Set<string>());
-  // Offene Namenseingabe, null = keine.
   const [draft, setDraft] = createSignal<Draft | null>(null);
-  // Zuletzt angeklickter Ordner.
   const [selectedFolder, setSelectedFolder] = createSignal<string>();
 
-  // Klick irgendwo anders hebt die Ordner-Markierung auf.
-  // Ausnahmen: Ordnerzeilen und die Buttons oben, damit "Neuer Ordner" sie noch kennt.
+  /**
+   * A click anywhere else clears the folder selection.
+   * Except folder rows and the header buttons, so "new folder" still knows it.
+   */
   function clearSelection(e: MouseEvent) {
     const target = e.target as HTMLElement;
     if (!target.closest(".tree-row.folder, .icon-button")) {
@@ -52,14 +52,13 @@ function Sidebar(props: SidebarProps) {
     setExpanded(next);
   }
 
-  // Startet die Eingabe im markierten Ordner und klappt ihn auf.
+  /** Starts the name input in the selected folder and expands it. */
   function startDraft(kind: Draft["kind"]) {
     const parent = selectedFolder() ?? "";
     if (parent) setExpanded(new Set(expanded()).add(parent));
     setDraft({ kind, parent });
   }
 
-  // Wird an TreeItem und DraftEntry weitergereicht.
   const state: SidebarState = {
     activePath: () => props.activePath,
     expanded,

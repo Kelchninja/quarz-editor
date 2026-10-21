@@ -46,6 +46,18 @@ pub async fn create_note(
 
 #[tauri::command]
 #[specta::specta]
+pub async fn rename_note(
+    name: String,
+    path: VaultPath,
+    state: tauri::State<'_, AppState>,
+) -> Result<VaultMeta, String> {
+    let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
+    vault.rename_note(&name, &path).map_err(|e| e.to_string())?;
+    Ok(VaultMeta::of(&vault))
+}
+
+#[tauri::command]
+#[specta::specta]
 pub async fn save_note(
     content: String,
     path: VaultPath,
@@ -54,20 +66,6 @@ pub async fn save_note(
     let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
     vault
         .save_note(&content, &path)
-        .map_err(|e| e.to_string())?;
-    Ok(())
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn change_note_name(
-    path: VaultPath,
-    name: &str,
-    state: tauri::State<'_, AppState>,
-) -> Result<(), String> {
-    let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
-    vault
-        .change_note_name(name, &path)
         .map_err(|e| e.to_string())?;
     Ok(())
 }

@@ -70,7 +70,12 @@ impl Vault {
         Ok(())
     }
 
-    pub fn change_note_name(&mut self, name: &str, path: &VaultPath) -> Result<(), VaultError> {
+    /// Renames the note at `path` to `name` (without `.md`), in the same folder.
+    ///
+    /// # Errors
+    /// [`VaultError::NotAllowed`] for an empty name or one containing `/`,
+    /// [`VaultError::AlreadyExists`] if the target exists, since `fs::rename` would overwrite it.
+    pub fn rename_note(&mut self, name: &str, path: &VaultPath) -> Result<(), VaultError> {
         if !path.as_str().ends_with(".md") {
             return Err(VaultError::NotMarkdown(path.to_string()));
         }

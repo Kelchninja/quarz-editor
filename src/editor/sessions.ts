@@ -1,9 +1,10 @@
 import { EditorState, type Extension } from "@codemirror/state";
 import type { EditorView } from "@codemirror/view";
 
-// Cache für Tabs: pro offener Notiz ein EditorState (Text, Cursor, Undo-Verlauf)
-// und die Scroll-Position. Es gibt nur einen EditorView, beim Tab-Wechsel
-// wird nur sein State ausgetauscht.
+/**
+ * Cache for tabs: one EditorState (text, cursor, undo history) and scroll position per open note.
+ * There is only one EditorView, a tab switch only swaps its state.
+ */
 export function createSessions() {
   const states = new Map<string, EditorState>();
   const scrolls = new Map<string, number>();
@@ -14,14 +15,18 @@ export function createSessions() {
     view = editorView;
   }
 
-  // Merkt sich den Stand des aktuellen Tabs und zeigt dann `path`.
-  // `initialText` wird nur gebraucht, wenn es für `path` noch keinen State gibt.
+  /**
+   * Stores the current tab's state, then shows `path`.
+   * `initialText` is only used if there is no state for `path` yet.
+   */
   function show(
     path: string | undefined,
     initialText: () => string,
     extensions: Extension[],
   ) {
     if (!view) return;
+    // Already shown, e.g. after rename(). A new state would lose the undo history.
+    if (path && path === current) return;
 
     if (current && current !== path) {
       states.set(current, view.state);
@@ -38,18 +43,18 @@ export function createSessions() {
       states.get(path) ?? EditorState.create({ doc: initialText(), extensions });
     view.setState(state);
 
-    // Erst nach dem Neuzeichnen scrollen, sonst überschreibt CodeMirror es.
+    // Scroll after the redraw, otherwise CodeMirror overwrites it.
     const scroll = scrolls.get(path) ?? 0;
     requestAnimationFrame(() => view?.scrollDOM.scrollTo({ top: scroll }));
   }
 
-  // Aktueller Text eines Tabs, auch wenn er gerade nicht sichtbar ist.
+  /** Current text of a tab, even if it is not visible. */
   function textOf(path: string): string | undefined {
     if (path === current && view) return view.state.doc.toString();
     return states.get(path)?.doc.toString();
   }
 
-  // Wirft gespeicherte States geschlossener Tabs weg.
+  /** Drops the states of closed tabs. */
   function retain(openPaths: Set<string>) {
     for (const path of [...states.keys()]) {
       if (!openPaths.has(path)) {
@@ -60,7 +65,18 @@ export function createSessions() {
     if (current && !openPaths.has(current)) current = undefined;
   }
 
-  return { attach, show, textOf, retain };
+  /** Moves the cached state of `oldPath` to `newPath`, after a rename. */
+  function rename(oldPath: string, newPath: string) {
+    const state = states.get(oldPath);
+    if (state) states.set(newPath, state);
+    const scroll = scrolls.get(oldPath);
+    if (scroll !== undefined) scrolls.set(newPath, scroll);
+    states.delete(oldPath);
+    scrolls.delete(oldPath);
+    if (current === oldPath) current = newPath;
+  }
+
+  return { attach, show, textOf, retain, rename };
 }
 
 export type Sessions = ReturnType<typeof createSessions>;

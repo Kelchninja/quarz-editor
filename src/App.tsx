@@ -3,55 +3,42 @@ import Editor from "./components/Editor";
 import TabBar from "./components/TabBar";
 import Sidebar from "./components/sidebar/Sidebar";
 import { createActions } from "./editor/actions";
-import { createSessions } from "./editor/sessions";
+import { createTabs } from "./state/tabs";
 import { createVaultStore } from "./state/vault";
 import "./styles/base.css";
 
-// Nur Layout: oben die Tab-Leiste über die ganze Breite, darunter Sidebar
-// und Editor. Die Logik steckt im Store, die Editor-States in den Sessions.
 function App() {
-  const store = createVaultStore();
-  const sessions = createSessions();
-  const actions = createActions(store, sessions);
-
-  function closeTab(path: string) {
-    store.closeTab(path, sessions.textOf(path));
-  }
+  const vault = createVaultStore();
+  const tabs = createTabs(vault);
+  const actions = createActions(tabs);
 
   onMount(() => {
-    store.loadVault();
+    vault.loadVault();
   });
 
   return (
     <main class="app">
       <TabBar
-        tabs={store.tabs()}
-        activePath={store.activePath()}
-        previewPath={store.previewPath()}
-        onSelect={store.openNote}
-        onPin={store.pinTab}
-        onClose={closeTab}      />
+        tabs={tabs.list()}
+        activePath={tabs.activePath()}
+        previewPath={tabs.previewPath()}
+        onSelect={tabs.open}
+        onPin={tabs.pin}
+        onClose={tabs.close}
+      />
       <div class="app-body">
-        <Show when={store.vault()}>
+        <Show when={vault.vault()}>
           {(v) => (
             <Sidebar
               vault={v()}
-              activePath={store.activePath()}
-              onOpen={store.openNote}
-              onCreateFolder={store.newFolder}
-              onCreateNote={store.newNote}
+              activePath={tabs.activePath()}
+              onOpen={tabs.open}
+              onCreateFolder={vault.newFolder}
+              onCreateNote={tabs.newNote}
             />
           )}
         </Show>
-        <Editor
-          tabs={store.tabs()}
-          activePath={store.activePath()}
-          initialText={store.initialText}
-          sessions={sessions}
-          actions={actions}
-          onSave={store.saveNote}
-          onEdit={store.pinTab}
-        />
+        <Editor tabs={tabs} actions={actions} />
       </div>
     </main>
   );

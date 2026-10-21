@@ -8,8 +8,7 @@ type DraftEntryProps = {
   state: SidebarState;
 };
 
-// Eingabezeile für den Namen eines neuen Ordners oder einer Notiz,
-// wie im Datei-Explorer.
+/** Name input for a new folder or note, like in a file explorer. */
 function DraftEntry(props: DraftEntryProps) {
   const { kind, parent } = props.draft;
   const defaultName = kind === "folder" ? "Neuer Ordner" : "Unbenannt";
@@ -21,8 +20,10 @@ function DraftEntry(props: DraftEntryProps) {
     input.select();
   });
 
-  // Enter und Fokusverlust landen hier. `done` verhindert doppeltes Anlegen,
-  // weil nach Enter beim Verschwinden des Felds noch ein blur kommt.
+  /**
+   * Called on Enter and on blur. `done` prevents creating twice,
+   * because the field fires a blur after Enter when it disappears.
+   */
   function commit() {
     if (done) return;
     done = true;

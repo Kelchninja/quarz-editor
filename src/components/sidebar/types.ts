@@ -1,4 +1,4 @@
-// Ein Eintrag im Dateibaum der Sidebar.
+/** An entry in the sidebar's file tree. */
 export type TreeNode = {
   name: string;
   path: string;
@@ -6,11 +6,10 @@ export type TreeNode = {
   children: TreeNode[];
 };
 
-// Eine Eingabe für einen neuen Eintrag, der noch benannt wird.
-// parent = Pfad des Elternordners, "" = oberste Ebene.
+/** A new entry that is still being named. `parent` is the folder path, "" for the top level. */
 export type Draft = { kind: "folder" | "note"; parent: string };
 
-// Was TreeItem und DraftEntry von der Sidebar brauchen.
+/** What TreeItem and DraftEntry need from the sidebar. */
 export type SidebarState = {
   activePath: () => string | undefined;
   expanded: () => Set<string>;

@@ -1,10 +1,9 @@
-// Schlüssel ist die id einer Action aus actions.ts.
-// "Mod" = Cmd auf macOS, Strg sonst.
+/** Key = action id from actions.ts. "Mod" is Cmd on macOS, Ctrl elsewhere. */
 export const keybinds: Record<string, string> = {
   "note.save": "Mod-s",
 
   "tab.close": "Mod-w",
-  // Ctrl statt Mod: Cmd+Tab gehört unter macOS dem System (App-Wechsel).
+  // Ctrl instead of Mod: macOS uses Cmd+Tab for switching apps.
   "tab.next": "Ctrl-Tab",
   "tab.prev": "Ctrl-Shift-Tab",
   "tab.1": "Mod-1",

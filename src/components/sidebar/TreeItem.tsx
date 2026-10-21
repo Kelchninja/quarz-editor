@@ -9,7 +9,7 @@ type TreeItemProps = {
   state: SidebarState;
 };
 
-// Eine Zeile im Dateibaum. Ordner enthalten wieder TreeItems.
+/** One row in the file tree. Folders contain TreeItems again. */
 function TreeItem(props: TreeItemProps) {
   const node = props.node;
   const state = props.state;

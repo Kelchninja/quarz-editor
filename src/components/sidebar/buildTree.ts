@@ -1,7 +1,7 @@
 import type { NoteMeta, VaultPath } from "../../bindings";
 import type { TreeNode } from "./types";
 
-// Macht aus den flachen Listen einen Baum.
+/** Builds a tree from the flat lists of notes and folders. */
 export function buildTree(notes: NoteMeta[], folders: VaultPath[]): TreeNode[] {
   const root: TreeNode[] = [];
   const dirs = new Map<string, TreeNode[]>([["", root]]);
@@ -22,7 +22,7 @@ export function buildTree(notes: NoteMeta[], folders: VaultPath[]): TreeNode[] {
     return node.children;
   }
 
-  // Legt jeden Ordner an, auch leere.
+  // Creates every folder, including empty ones.
   for (const folder of folders) childrenOf(folder);
 
   for (const note of notes) {
@@ -39,7 +39,7 @@ export function buildTree(notes: NoteMeta[], folders: VaultPath[]): TreeNode[] {
   return root;
 }
 
-// Ordner zuerst, dann alphabetisch ("Notiz 2" vor "Notiz 10").
+/** Folders first, then alphabetical ("Note 2" before "Note 10"). */
 function sortTree(nodes: TreeNode[]) {
   nodes.sort((a, b) =>
     a.isDir !== b.isDir

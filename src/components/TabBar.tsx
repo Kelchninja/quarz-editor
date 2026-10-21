@@ -11,7 +11,7 @@ type TabBarProps = {
   onClose: (path: string) => void;
 };
 
-// "Ordner/Notiz.md" → "Notiz"
+/** "folder/note.md" → "note" */
 function tabTitle(path: string): string {
   return path.slice(path.lastIndexOf("/") + 1).replace(/\.md$/, "");
 }
@@ -19,7 +19,6 @@ function tabTitle(path: string): string {
 function TabBar(props: TabBarProps) {
   return (
     <nav class="tab-bar">
-      {/* Liegt in public/, wird deshalb mit "/" ab der Wurzel geladen. */}
       <img class="app-logo" src="/quarz-no-text.png" alt="Quarz" draggable={false} />
 
       <For each={props.tabs}>
@@ -31,14 +30,13 @@ function TabBar(props: TabBarProps) {
               classList={{ active: active(), preview: path === props.previewPath }}
               title={path}
               onMouseDown={(e) => {
-                // Mittlere Maustaste schließt, wie im Browser.
+                // Middle click closes, like in browsers.
                 if (e.button === 1) {
                   e.preventDefault();
                   props.onClose(path);
                 }
               }}
               onClick={() => props.onSelect(path)}
-              // Doppelklick macht einen Vorschau-Tab fest, wie in VS Code.
               onDblClick={() => props.onPin?.(path)}
             >
               <Show when={active()}>
@@ -49,7 +47,7 @@ function TabBar(props: TabBarProps) {
                 class="tab-close"
                 aria-label="Tab schließen"
                 onClick={(e) => {
-                  // Sonst würde der Klick den Tab zusätzlich auswählen.
+                  // Otherwise the click would also select the tab.
                   e.stopPropagation();
                   props.onClose(path);
                 }}

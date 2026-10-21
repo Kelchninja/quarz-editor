@@ -14,12 +14,12 @@
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --line-width: 700px;
 
-  /* Für codemirror-live-markdown: nur die HSL-Zahlen, ohne hsl(). */
+  /* For codemirror-live-markdown: HSL numbers only, without hsl(). */
   --foreground: 225 6% 87%; /* = --text */
-  --muted-foreground: 222 6% 57%; /* = --text-muted, für ###, **, __ */
+  --muted-foreground: 222 6% 57%; /* = --text-muted */
   --primary: 218 100% 65%; /* = --accent */
   --background: 223 11% 12%; /* = --bg */
-  --muted: 220 11% 15%; /* Hintergrund für Inline-Code */
+  --muted: 220 11% 15%; /* inline code background */
   --border: 222 11% 18%; /* = --divider */
 
   color-scheme: dark;
@@ -43,22 +43,43 @@ body,
   margin: 0;
 }
 
-/* Oben Tab-Leiste, darunter .app-body */
 .app {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-/* Sidebar links, Editor rechts */
 .app-body {
   flex: 1;
   min-height: 0;
   display: flex;
 }
 
-.editor {
+/* Title and editor scroll together */
+.editor-pane {
   flex: 1;
   min-width: 0;
   min-height: 0;
+  overflow-y: auto;
+}
+
+/* Same width and indent as .cm-content */
+.note-title {
+  display: block;
+  width: 100%;
+  max-width: var(--line-width);
+  resize: none;
+  overflow: hidden;
+  field-sizing: content;
+  margin: 0 auto;
+  padding: 48px 24px 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  caret-color: var(--accent);
+  font-family: var(--font-text);
+  font-size: 2em;
+  font-weight: 700;
+  line-height: 1.3;
 }

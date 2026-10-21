@@ -82,7 +82,6 @@
   color: var(--text);
 }
 
-/* Zuletzt angeklickter Ordner */
 .tree-row.selected {
   color: var(--accent);
 }
@@ -115,7 +114,6 @@
   text-overflow: ellipsis;
 }
 
-/* Zeile beim Anlegen: ganze Zeile umrandet */
 .tree-row.editing {
   background: var(--active);
   outline: 1px solid var(--accent);

@@ -3,7 +3,7 @@ import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { markdown } from "@codemirror/lang-markdown";
 import { tags } from "@lezer/highlight";
 
-// Farben kommen aus den CSS-Variablen in styles/base.css.
+/** Colors come from the CSS variables in styles/base.css. */
 export const editorTheme = EditorView.theme(
   {
     "&": {
@@ -15,14 +15,14 @@ export const editorTheme = EditorView.theme(
       outline: "none",
     },
 
-    // Keine Ein-/Ausblend-Animation für Markdown-Zeichen.
-    // "&.cm-editor" macht die Regel spezifischer als die des Pakets.
+    // No fade animation for markdown marks.
+    // "&.cm-editor" makes the rule more specific than the package's.
     "&.cm-editor .cm-formatting-block, &.cm-editor .cm-formatting-inline": {
       transition: "none",
     },
 
-    // Ohne Fokus keine Markdown-Zeichen zeigen. Sonst sieht man nach dem Öffnen
-    // das # in Zeile 1, weil der Cursor dort startet.
+    // Hide markdown marks without focus, otherwise the # in line 1
+    // shows after opening, because the cursor starts there.
     "&:not(.cm-focused) .cm-formatting-block-visible": {
       fontSize: "0.01em",
       opacity: "0",
@@ -40,11 +40,10 @@ export const editorTheme = EditorView.theme(
     ".cm-content": {
       maxWidth: "var(--line-width)",
       margin: "0 auto",
-      padding: "48px 24px",
+      padding: "16px 24px 48px",
       caretColor: "var(--accent)",
     },
 
-    // Ruhiger: keine Zeilennummern, keine hervorgehobene Zeile.
     ".cm-gutters": {
       display: "none",
     },
@@ -65,7 +64,7 @@ export const editorTheme = EditorView.theme(
       outline: "1px solid var(--divider)",
     },
 
-    // Suchleiste (Mod+F) und Popups (Autocomplete).
+    // Search panel (Mod+F) and autocomplete popups.
     ".cm-panels": {
       backgroundColor: "var(--bg-sidebar)",
       color: "var(--text)",
@@ -86,7 +85,7 @@ export const editorTheme = EditorView.theme(
   { dark: true },
 );
 
-// Ersetzt den Standardstil aus basicSetup komplett.
+/** Fully replaces the default highlight style from basicSetup. */
 const markdownStyle = HighlightStyle.define([
   {
     tag: tags.heading1,
@@ -110,7 +109,7 @@ const markdownStyle = HighlightStyle.define([
   { tag: tags.heading5, fontSize: "1.1em", fontWeight: "700" },
   { tag: tags.heading6, fontSize: "1em", fontWeight: "700" },
 
-  // Steuerzeichen wie #, **, `, > und Listenpunkte.
+  // Marks like #, **, `, > and list markers.
   { tag: tags.processingInstruction, color: "var(--text-muted)" },
 
   { tag: tags.strong, fontWeight: "700" },

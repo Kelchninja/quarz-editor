@@ -1,4 +1,3 @@
-/* Tab-Leiste ganz oben über der ganzen Breite, wie im Mockup */
 .tab-bar {
   display: flex;
   align-items: center;
@@ -11,7 +10,7 @@
   border-bottom: 1px solid var(--divider);
 }
 
-/* Logo links oben. Das Bild hat viel Rand, deshalb etwas größer. */
+/* The image has a wide margin, hence the larger size. */
 .app-logo {
   width: 32px;
   height: 32px;
@@ -21,7 +20,6 @@
   user-select: none;
 }
 
-/* Keine sichtbare Scrollleiste bei vielen Tabs */
 .tab-bar::-webkit-scrollbar {
   display: none;
 }
@@ -46,19 +44,16 @@
   color: var(--text-soft);
 }
 
-/* Aktiver Tab: leicht hellere Fläche mit feinem Rahmen */
 .tab.active {
   background: var(--bg);
   border-color: var(--divider);
   color: var(--text);
 }
 
-/* Vorschau-Tab: kursiv, wird beim nächsten Öffnen ersetzt */
 .tab.preview .tab-title {
   font-style: italic;
 }
 
-/* Blauer Punkt vor dem aktiven Tab */
 .tab-dot {
   width: 6px;
   height: 6px;
@@ -87,7 +82,6 @@
   cursor: pointer;
 }
 
-/* Schließen-Knopf am aktiven Tab und beim Darüberfahren */
 .tab:hover .tab-close,
 .tab.active .tab-close {
   visibility: visible;
