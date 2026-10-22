@@ -1,7 +1,22 @@
 use crate::app::AppState;
 use crate::vault::entry::Editable;
-use crate::vault::meta::{NoteMeta, VaultMeta};
+use crate::vault::meta::VaultMeta;
 use crate::vault::path::VaultPath;
+use crate::vault::vault::Vault;
+
+use std::path::PathBuf;
+
+#[tauri::command]
+#[specta::specta]
+pub async fn open_vault(
+    path: String,
+    state: tauri::State<'_, AppState>,
+) -> Result<VaultMeta, String> {
+    let new_vault = Vault::open(PathBuf::from(path)).map_err(|e| e.to_string())?;
+    let meta = VaultMeta::of(&new_vault);
+    *state.vault.lock().map_err(|e| e.to_string())? = new_vault;
+    Ok(meta)
+}
 
 #[tauri::command]
 #[specta::specta]

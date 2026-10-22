@@ -1,5 +1,6 @@
 import { For, Show } from "solid-js";
 import { X } from "lucide-solid";
+import logo from "../assets/kristall-small.svg";
 import "../styles/tabs.css";
 
 type TabBarProps = {
@@ -19,7 +20,7 @@ function tabTitle(path: string): string {
 function TabBar(props: TabBarProps) {
   return (
     <nav class="tab-bar">
-      <img class="app-logo" src="/quarz-no-text.png" alt="Quarz" draggable={false} />
+      <img class="app-logo" src={logo} alt="Quarz" draggable={false} />
 
       <For each={props.tabs}>
         {(path) => {

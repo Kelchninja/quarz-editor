@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1250 1250" width="1250" height="1250">
+  <defs>
+    <linearGradient id="gLeftTop" x1="345" y1="365" x2="470" y2="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2F55E0"/>
+      <stop offset="1" stop-color="#0A2A9E"/>
+    </linearGradient>
+    <linearGradient id="gTopLight" x1="662" y1="70" x2="500" y2="470" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C8F4FF"/>
+      <stop offset="0.5" stop-color="#5CB6F7"/>
+      <stop offset="1" stop-color="#1E86F5"/>
+    </linearGradient>
+    <linearGradient id="gTopRight" x1="662" y1="70" x2="880" y2="430" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4FD6F7"/>
+      <stop offset="1" stop-color="#C4F3FB"/>
+    </linearGradient>
+    <linearGradient id="gSmall" x1="300" y1="575" x2="460" y2="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7FA9F5"/>
+      <stop offset="1" stop-color="#B9D3FC"/>
+    </linearGradient>
+    <linearGradient id="gLeftBottom" x1="290" y1="600" x2="560" y2="980" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3060E0"/>
+      <stop offset="1" stop-color="#05207E"/>
+    </linearGradient>
+    <linearGradient id="gCenter" x1="470" y1="500" x2="720" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0638D8"/>
+      <stop offset="0.5" stop-color="#0D5CF5"/>
+      <stop offset="1" stop-color="#0A9AF7"/>
+    </linearGradient>
+    <linearGradient id="gRightLight" x1="860" y1="420" x2="640" y2="1060" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7EBCF7"/>
+      <stop offset="0.6" stop-color="#3A9EF5"/>
+      <stop offset="1" stop-color="#5FE0FA"/>
+    </linearGradient>
+    <linearGradient id="gRightDark" x1="890" y1="430" x2="700" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1F5EF0"/>
+      <stop offset="1" stop-color="#17A0F5"/>
+    </linearGradient>
+  </defs>
+  <g stroke-linejoin="round">
+    <polygon points="662,70 345,365 278,578 466,482" fill="url(#gLeftTop)"/>
+    <polygon points="662,70 466,482 750,315" fill="url(#gTopLight)"/>
+    <polygon points="662,70 750,315 765,355 893,428" fill="url(#gTopRight)"/>
+    <polygon points="278,578 466,482 450,658" fill="url(#gSmall)"/>
+    <polygon points="278,578 450,658 603,1088 428,925" fill="url(#gLeftBottom)"/>
+    <polygon points="466,482 750,315 765,355 603,1088 450,658" fill="url(#gCenter)"/>
+    <path d="M765,355 L893,428 Q845,700 603,1088 Z" fill="url(#gRightLight)"/>
+    <path d="M893,428 L828,855 L603,1088 Q845,700 893,428 Z" fill="url(#gRightDark)"/>
+    <g fill="none" stroke="#9FE6FF" stroke-width="2" stroke-opacity="0.8">
+      <path d="M466,482 L750,315 M765,355 L603,1088 M893,428 Q845,700 603,1088 M278,578 L450,658 L466,482 M765,355 L893,428"/>
+    </g>
+  </g>
+</svg>
