@@ -4,11 +4,11 @@ use crate::vault::{folder::Folder, note::Note, path::VaultPath};
 #[derive(Debug, Clone)]
 pub enum TreeEntry {
     Folder(Folder),
-    File(File),
+    File(FileEntry),
 }
 
 #[derive(Debug, Clone)]
-pub enum File {
+pub enum FileEntry {
     Note(Note), // Pdf(Pdf)
 }
 
@@ -47,10 +47,10 @@ impl TreeEntry {
     }
 }
 
-impl File {
+impl FileEntry {
     pub fn meta(&self) -> &EntryMeta {
         match self {
-            File::Note(note) => &note.meta,
+            FileEntry::Note(note) => &note.meta,
             // File::Pdf(pdf) => &pdf.meta,
             // File::Image(image) => &image.meta,
         }
