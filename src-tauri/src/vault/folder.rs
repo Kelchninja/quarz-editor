@@ -1,10 +1,10 @@
-use crate::vault::entry::{EntryMeta, VaultEntry};
+use crate::vault::entry::{EntryMeta, TreeEntry};
 use crate::vault::path::VaultPath;
 
 #[derive(Debug, Clone)]
 pub struct Folder {
     pub meta: EntryMeta,
-    pub children: Vec<VaultEntry>,
+    pub children: Vec<TreeEntry>,
 }
 
 impl Folder {

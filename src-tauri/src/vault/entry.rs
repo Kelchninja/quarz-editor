@@ -2,7 +2,7 @@ use crate::vault::{folder::Folder, note::Note, path::VaultPath};
 
 /// An entry in the vault tree. Holds only lightweight data, no note text.
 #[derive(Debug, Clone)]
-pub enum VaultEntry {
+pub enum TreeEntry {
     Folder(Folder),
     File(File),
 }
@@ -38,11 +38,11 @@ impl EntryMeta {
     }
 }
 
-impl VaultEntry {
+impl TreeEntry {
     pub fn meta(&self) -> &EntryMeta {
         match self {
-            VaultEntry::Folder(folder) => &folder.meta,
-            VaultEntry::File(file) => file.meta(),
+            TreeEntry::Folder(folder) => &folder.meta,
+            TreeEntry::File(file) => file.meta(),
         }
     }
 }
