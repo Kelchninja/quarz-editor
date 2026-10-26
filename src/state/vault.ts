@@ -6,13 +6,20 @@ export function createVaultStore() {
   // signals
   const [vault, setVault] = createSignal<VaultMeta>();
 
-  // vault
+  // vaults
   async function loadVault() {
     const result = await commands.getVaultMeta();
     if (result.status === "ok") setVault(result.data);
     else console.error("Could not load vault:", result.error);
   }
 
+  async function openVault(path: string) {
+    const result = await commands.openVault(path);
+    if (result.status === "ok") setVault(result.data);
+    else console.error("Could not open vault:", result.error);
+  }
+
+  // folders
   async function newFolder(name: string, parent: string) {
     const current = vault();
     if (!current) return;

@@ -52,6 +52,14 @@ async renameNote(name: string, path: VaultPath) : Promise<Result<VaultMeta, stri
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async openVault(path: string) : Promise<Result<VaultMeta, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_vault", { path }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
