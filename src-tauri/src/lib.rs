@@ -9,6 +9,7 @@ use crate::vault::vault::Vault;
 
 mod app;
 mod commands;
+mod config;
 mod vault;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
