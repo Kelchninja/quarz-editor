@@ -25,7 +25,7 @@ pub fn run() {
     // Debug builds only: writes the TS types and command functions.
     #[cfg(debug_assertions)]
     builder
-        .export(Typescript::deqfault(), "../src/bindings.ts")
+        .export(Typescript::default(), "../src/bindings.ts")
         .expect("TypeScript-Bindings konnten nicht geschrieben werden");
 
     tauri::Builder::default()
