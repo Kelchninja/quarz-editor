@@ -1,11 +1,9 @@
-use std::path::PathBuf;
 use std::sync::Mutex;
 
 use specta_typescript::Typescript;
 use tauri_specta::{Builder, collect_commands};
 
 use crate::app::AppState;
-use crate::vault::vault::Vault;
 
 mod app;
 mod commands;
@@ -27,15 +25,12 @@ pub fn run() {
     // Debug builds only: writes the TS types and command functions.
     #[cfg(debug_assertions)]
     builder
-        .export(Typescript::default(), "../src/bindings.ts")
+        .export(Typescript::deqfault(), "../src/bindings.ts")
         .expect("TypeScript-Bindings konnten nicht geschrieben werden");
-
-    let vault = Vault::open(PathBuf::from("/Users/kelchninja/Documents/obsidian-vault"))
-        .expect("Vault couldnt be opened");
 
     tauri::Builder::default()
         .manage(AppState {
-            vault: Mutex::new(vault),
+            vault: Mutex::new(None),
         })
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())

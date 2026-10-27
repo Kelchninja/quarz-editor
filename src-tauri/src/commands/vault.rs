@@ -1,4 +1,5 @@
 use crate::app::AppState;
+use crate::commands::helper;
 use crate::vault::entry::Editable;
 use crate::vault::meta::VaultMeta;
 use crate::vault::path::VaultPath;
@@ -14,7 +15,7 @@ pub async fn open_vault(
 ) -> Result<VaultMeta, String> {
     let new_vault = Vault::open(PathBuf::from(path)).map_err(|e| e.to_string())?;
     let meta = VaultMeta::of(&new_vault);
-    *state.vault.lock().map_err(|e| e.to_string())? = new_vault;
+    *state.vault.lock().map_err(|e| e.to_string())? = Some(new_vault);
     Ok(meta)
 }
 
@@ -24,17 +25,19 @@ pub async fn open_note(
     path: VaultPath,
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
-    let vault = state.vault.lock().map_err(|e| e.to_string())?;
-    let doc = vault.load(path).map_err(|e| e.to_string())?;
-    Ok(doc.source().to_string())
+    helper::with_vault(&state, |vault| {
+        let doc = vault.load(path).map_err(|e| e.to_string())?;
+        Ok(doc.source().to_string())
+    })
 }
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_vault_meta(state: tauri::State<'_, AppState>) -> Result<VaultMeta, String> {
-    let vault = state.vault.lock().map_err(|e| e.to_string())?;
-    let meta = VaultMeta::of(&vault);
-    Ok(meta)
+pub async fn get_vault_meta(
+    state: tauri::State<'_, AppState>,
+) -> Result<Option<VaultMeta>, String> {
+    let guard = state.vault.lock().map_err(|e| e.to_string())?;
+    Ok(guard.as_ref().map(VaultMeta::of))
 }
 
 #[tauri::command]
@@ -43,9 +46,10 @@ pub async fn create_folder(
     path: VaultPath,
     state: tauri::State<'_, AppState>,
 ) -> Result<VaultMeta, String> {
-    let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
-    vault.create_folder(path).map_err(|e| e.to_string())?;
-    Ok(VaultMeta::of(&vault))
+    helper::with_vault(&state, |vault| {
+        vault.create_folder(path).map_err(|e| e.to_string())?;
+        Ok(VaultMeta::of(vault))
+    })
 }
 
 #[tauri::command]
@@ -54,9 +58,10 @@ pub async fn create_note(
     path: VaultPath,
     state: tauri::State<'_, AppState>,
 ) -> Result<VaultMeta, String> {
-    let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
-    vault.create_note(path).map_err(|e| e.to_string())?;
-    Ok(VaultMeta::of(&vault))
+    helper::with_vault(&state, |vault| {
+        vault.create_note(path).map_err(|e| e.to_string())?;
+        Ok(VaultMeta::of(vault))
+    })
 }
 
 #[tauri::command]
@@ -66,9 +71,10 @@ pub async fn rename_note(
     path: VaultPath,
     state: tauri::State<'_, AppState>,
 ) -> Result<VaultMeta, String> {
-    let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
-    vault.rename_note(&name, &path).map_err(|e| e.to_string())?;
-    Ok(VaultMeta::of(&vault))
+    helper::with_vault(&state, |vault| {
+        vault.rename_note(&name, &path).map_err(|e| e.to_string())?;
+        Ok(VaultMeta::of(vault))
+    })
 }
 
 #[tauri::command]
@@ -78,9 +84,9 @@ pub async fn save_note(
     path: VaultPath,
     state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
-    let mut vault = state.vault.lock().map_err(|e| e.to_string())?;
-    vault
-        .save_note(&content, &path)
-        .map_err(|e| e.to_string())?;
-    Ok(())
+    helper::with_vault(&state, |vault| {
+        vault
+            .save_note(&content, &path)
+            .map_err(|e| e.to_string())
+    })
 }
