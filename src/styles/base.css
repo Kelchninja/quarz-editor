@@ -9,6 +9,12 @@
   --text-soft: #b4b7bd;
   --hover: rgba(255, 255, 255, 0.04);
   --active: rgba(76, 141, 255, 0.14);
+  --accent-hover: #6b9fff;
+  --on-accent: #0e1525;
+  --divider-strong: #3a3e47;
+  --warning: #f0b35a;
+  --warning-border: #5a4421;
+  --warning-soft: rgba(240, 170, 70, 0.08);
 
   --font-text: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;

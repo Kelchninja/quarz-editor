@@ -5,12 +5,15 @@ import { commands, type VaultMeta } from "../bindings";
 export function createVaultStore() {
   // signals
   const [vault, setVault] = createSignal<VaultMeta>();
+  /** False until the backend answered whether a vault is open. */
+  const [loaded, setLoaded] = createSignal(false);
 
   // vaults
   async function loadVault() {
     const result = await commands.getVaultMeta();
-    if (result.status === "ok") setVault(result.data);
+    if (result.status === "ok") setVault(result.data ?? undefined);
     else console.error("Could not load vault:", result.error);
+    setLoaded(true);
   }
 
   async function openVault(path: string) {
@@ -96,7 +99,9 @@ export function createVaultStore() {
 
   return {
     vault,
+    loaded,
     loadVault,
+    openVault,
     newFolder,
     newNote,
     readNote,

@@ -1,6 +1,7 @@
 import { onMount, Show } from "solid-js";
 import Editor from "./components/Editor";
 import TabBar from "./components/TabBar";
+import VaultPicker from "./components/VaultPicker";
 import Sidebar from "./components/sidebar/Sidebar";
 import { createActions } from "./editor/actions";
 import { createTabs } from "./state/tabs";
@@ -16,31 +17,34 @@ function App() {
     vault.loadVault();
   });
 
+  // Nothing until the backend answered, otherwise the picker flashes on start.
   return (
-    <main class="app">
-      <TabBar
-        tabs={tabs.list()}
-        activePath={tabs.activePath()}
-        previewPath={tabs.previewPath()}
-        onSelect={tabs.open}
-        onPin={tabs.pin}
-        onClose={tabs.close}
-      />
-      <div class="app-body">
-        <Show when={vault.vault()}>
-          {(v) => (
-            <Sidebar
-              vault={v()}
+    <Show when={vault.loaded()}>
+      <Show when={vault.vault()} fallback={<VaultPicker onOpen={vault.openVault} />}>
+        {(v) => (
+          <main class="app">
+            <TabBar
+              tabs={tabs.list()}
               activePath={tabs.activePath()}
-              onOpen={tabs.open}
-              onCreateFolder={vault.newFolder}
-              onCreateNote={tabs.newNote}
+              previewPath={tabs.previewPath()}
+              onSelect={tabs.open}
+              onPin={tabs.pin}
+              onClose={tabs.close}
             />
-          )}
-        </Show>
-        <Editor tabs={tabs} actions={actions} />
-      </div>
-    </main>
+            <div class="app-body">
+              <Sidebar
+                vault={v()}
+                activePath={tabs.activePath()}
+                onOpen={tabs.open}
+                onCreateFolder={vault.newFolder}
+                onCreateNote={tabs.newNote}
+              />
+              <Editor tabs={tabs} actions={actions} />
+            </div>
+          </main>
+        )}
+      </Show>
+    </Show>
   );
 }
 

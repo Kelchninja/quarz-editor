@@ -1,0 +1,156 @@
+.picker {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+.picker-content {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.picker-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.picker-logo {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  user-select: none;
+}
+
+.picker-title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.picker-subtitle {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.picker-notice {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--warning-border);
+  border-radius: 10px;
+  background: var(--warning-soft);
+}
+
+.picker-notice-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--warning);
+}
+
+.picker-notice-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.picker-notice-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.picker-notice-path {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-soft);
+  overflow-wrap: anywhere;
+}
+
+.picker-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  background: var(--bg-sidebar);
+}
+
+.picker-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+}
+
+.picker-action + .picker-action {
+  border-top: 1px solid var(--divider);
+}
+
+.picker-action-text {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.picker-action-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.picker-action-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.picker-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--divider-strong);
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.picker-button:hover {
+  background: var(--hover);
+}
+
+/* Dark text: white on --accent is below 4.5:1. */
+.picker-button.primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.picker-button.primary:hover {
+  background: var(--accent-hover);
+}
+
+.picker-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

@@ -13,7 +13,7 @@ async openNote(path: VaultPath) : Promise<Result<string, string>> {
     else return { status: "error", error: e  as any };
 }
 },
-async getVaultMeta() : Promise<Result<VaultMeta, string>> {
+async getVaultMeta() : Promise<Result<VaultMeta | null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_vault_meta") };
 } catch (e) {
