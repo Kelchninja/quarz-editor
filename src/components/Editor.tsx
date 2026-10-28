@@ -1,7 +1,7 @@
 import { createEffect, onCleanup, onMount } from "solid-js";
 import { EditorView, basicSetup } from "codemirror";
 import { editorTheme, markdownHighlighting } from "../editor/editorTheme";
-import { type Action, actionKeymap } from "../editor/actions";
+import { actionKeymap } from "../editor/keybinds";
 import type { Tabs } from "../state/tabs";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import {
@@ -15,12 +15,10 @@ import {
   mouseSelectingField,
 } from "codemirror-live-markdown";
 import { autosave } from "../editor/autosave";
-import { titleKeymap } from "../editor/titleNavigation";
 import NoteTitle, { focusAtEnd, titleOf } from "./NoteTitle";
 
 type EditorProps = {
   tabs: Tabs;
-  actions?: Action[];
 };
 
 function Editor(props: EditorProps) {
@@ -35,8 +33,10 @@ function Editor(props: EditorProps) {
     },
   });
 
-  const actionKeymapExt = actionKeymap(props.actions ?? []);
-  const titleKeymapExt = titleKeymap(() => focusAtEnd(titleInput));
+  const actionKeymapExt = actionKeymap({
+    tabs: props.tabs,
+    focusTitle: () => focusAtEnd(titleInput),
+  });
   const autosaveExt = autosave(props.tabs.activePath, props.tabs.save);
 
   const editorUpdateListenerExt = EditorView.updateListener.of((update) => {
@@ -59,7 +59,6 @@ function Editor(props: EditorProps) {
     mathPlugin,
     blockMathField,
     actionKeymapExt,
-    titleKeymapExt,
     autosaveExt,
     editorUpdateListenerExt,
     codeBlockFieldExt

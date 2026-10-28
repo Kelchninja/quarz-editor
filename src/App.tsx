@@ -3,7 +3,6 @@ import Editor from "./components/Editor";
 import TabBar from "./components/TabBar";
 import VaultPicker from "./components/VaultPicker";
 import Sidebar from "./components/sidebar/Sidebar";
-import { createActions } from "./editor/actions";
 import { createTabs } from "./state/tabs";
 import { createVaultStore } from "./state/vault";
 import "./styles/base.css";
@@ -11,7 +10,6 @@ import "./styles/base.css";
 function App() {
   const vault = createVaultStore();
   const tabs = createTabs(vault);
-  const actions = createActions(tabs);
 
   onMount(() => {
     vault.loadVault();
@@ -39,7 +37,7 @@ function App() {
                 onCreateFolder={vault.newFolder}
                 onCreateNote={tabs.newNote}
               />
-              <Editor tabs={tabs} actions={actions} />
+              <Editor tabs={tabs} />
             </div>
           </main>
         )}
