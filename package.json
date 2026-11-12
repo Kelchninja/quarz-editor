@@ -21,6 +21,7 @@
     "@lezer/markdown": "^1.8.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2.8.2",
+    "@tauri-apps/plugin-log": "^2.10.2",
     "@tauri-apps/plugin-opener": "^2",
     "codemirror": "^6.0.2",
     "codemirror-live-markdown": "github:Kelchninja/codemirror-live-markdown#feat/list-markers",

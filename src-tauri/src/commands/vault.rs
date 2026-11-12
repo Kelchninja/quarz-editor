@@ -15,7 +15,15 @@ pub async fn open_vault(
 ) -> Result<VaultMeta, String> {
     let new_vault = Vault::open(PathBuf::from(path)).map_err(|e| e.to_string())?;
     let meta = VaultMeta::of(&new_vault);
+    helper::with_registry(&state, |reg| {
+        reg.remember(&new_vault.root);
+        if let Err(e) = reg.save() {
+            log::error!("{e}");
+        }
+        Ok(())
+    })?;
     *state.vault.lock().map_err(|e| e.to_string())? = Some(new_vault);
+    
     Ok(meta)
 }
 
@@ -85,8 +93,6 @@ pub async fn save_note(
     state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
     helper::with_vault(&state, |vault| {
-        vault
-            .save_note(&content, &path)
-            .map_err(|e| e.to_string())
+        vault.save_note(&content, &path).map_err(|e| e.to_string())
     })
 }

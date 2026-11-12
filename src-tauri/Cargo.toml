@@ -31,6 +31,8 @@ specta-typescript = "0.0.9"
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
 specta = { version = "=2.0.0-rc.22", features = ["derive"] }
 tauri-plugin-prevent-default = "6"
+tauri-plugin-log = "2"
+log = "0.4.35"
 
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration

@@ -6,6 +6,8 @@ import type { Tabs } from "../state/tabs";
 export type ActionContext = {
   tabs: Tabs;
   focusTitle: () => void;
+  /** Starts the name input for a new note in the sidebar. */
+  newNote: () => void;
 };
 
 type Action = {
@@ -26,6 +28,12 @@ export const actions = {
       const path = tabs.activePath();
       if (path) tabs.save(path, view.state.doc.toString());
     },
+  },
+  "note.create": {
+    title: "Create new note",
+    description: "Creates a new note in the currently selected directory.",
+    key: "Mod-n",
+    run: (_view, { newNote }) => newNote(),
   },
   "note.focusTitle": {
     title: "Go to title",

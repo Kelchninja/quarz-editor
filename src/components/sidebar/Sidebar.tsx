@@ -21,6 +21,12 @@ type SidebarProps = {
   /** `parent` is the folder path, "" for the top level. */
   onCreateFolder?: (name: string, parent: string) => void;
   onCreateNote?: (name: string, parent: string) => void;
+  /** Hands out functions the parent may call, e.g. for keybinds. */
+  ref?: (api: SidebarApi) => void;
+};
+
+export type SidebarApi = {
+  startDraft: (kind: Draft["kind"]) => void;
 };
 
 function Sidebar(props: SidebarProps) {
@@ -58,6 +64,8 @@ function Sidebar(props: SidebarProps) {
     if (parent) setExpanded(new Set(expanded()).add(parent));
     setDraft({ kind, parent });
   }
+
+  props.ref?.({ startDraft });
 
   const state: SidebarState = {
     activePath: () => props.activePath,

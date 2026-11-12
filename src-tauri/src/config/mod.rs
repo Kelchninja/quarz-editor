@@ -1,2 +1,2 @@
-mod vaultentry;
-mod vaultregistry;
+pub mod vaultentry;
+pub mod vaultregistry;

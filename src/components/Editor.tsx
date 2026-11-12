@@ -19,6 +19,7 @@ import NoteTitle, { focusAtEnd, titleOf } from "./NoteTitle";
 
 type EditorProps = {
   tabs: Tabs;
+  onNewNote: () => void;
 };
 
 function Editor(props: EditorProps) {
@@ -36,6 +37,7 @@ function Editor(props: EditorProps) {
   const actionKeymapExt = actionKeymap({
     tabs: props.tabs,
     focusTitle: () => focusAtEnd(titleInput),
+    newNote: () => props.onNewNote(),
   });
   const autosaveExt = autosave(props.tabs.activePath, props.tabs.save);
 
