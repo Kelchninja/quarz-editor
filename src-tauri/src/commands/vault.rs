@@ -5,6 +5,7 @@ use crate::vault::entry::Editable;
 use crate::vault::meta::VaultMeta;
 use crate::vault::path::VaultPath;
 use crate::vault::vault::Vault;
+use crate::vault::vaultstate::VaultState;
 
 use std::path::PathBuf;
 
@@ -95,5 +96,33 @@ pub async fn save_note(
 ) -> Result<(), String> {
     helper::with_vault(&state, |vault| {
         vault.save_note(&content, &path).map_err(log_err("save_note"))
+    })
+}
+
+/// Open tabs of the current vault. Notes that no longer exist are left out.
+/// A broken state file is logged and treated as empty.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_vault_state(state: tauri::State<'_, AppState>) -> Result<VaultState, String> {
+    helper::with_vault(&state, |vault| {
+        let mut vault_state = VaultState::load(&vault.root).unwrap_or_else(|e| {
+            log::error!("{e}");
+            VaultState::default()
+        });
+        vault_state.retain_existing(|path| vault.files.contains_key(path));
+        Ok(vault_state)
+    })
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn save_vault_state(
+    vault_state: VaultState,
+    state: tauri::State<'_, AppState>,
+) -> Result<(), String> {
+    helper::with_vault(&state, |vault| {
+        vault_state
+            .save(&vault.root)
+            .map_err(log_err("save_vault_state"))
     })
 }

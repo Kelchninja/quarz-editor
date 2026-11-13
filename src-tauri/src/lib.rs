@@ -22,7 +22,9 @@ pub fn run() {
         commands::vault::create_note,
         commands::vault::save_note,
         commands::vault::rename_note,
-        commands::vault::open_vault
+        commands::vault::open_vault,
+        commands::vault::get_vault_state,
+        commands::vault::save_vault_state
     ]);
 
     // Debug builds only: writes the TS types and command functions.

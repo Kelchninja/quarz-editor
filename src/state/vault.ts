@@ -1,5 +1,5 @@
 import { createSignal } from "solid-js";
-import { commands, type VaultMeta } from "../bindings";
+import { commands, type VaultMeta, type VaultState } from "../bindings";
 
 /** Vault data and all backend calls for notes and folders. Knows nothing about tabs. */
 export function createVaultStore() {
@@ -20,6 +20,20 @@ export function createVaultStore() {
     const result = await commands.openVault(path);
     if (result.status === "ok") setVault(result.data);
     else console.error("Could not open vault:", result.error);
+  }
+
+  // workspace (open tabs), stored in <vault>/.quarz/state.json
+  /** Returns the saved tabs of the open vault, or undefined on error. */
+  async function loadState(): Promise<VaultState | undefined> {
+    const result = await commands.getVaultState();
+    if (result.status === "ok") return result.data;
+    console.error("Could not load vault state:", result.error);
+    return undefined;
+  }
+
+  async function saveState(state: VaultState) {
+    const result = await commands.saveVaultState(state);
+    if (result.status === "error") console.error("Could not save vault state:", result.error);
   }
 
   // folders
@@ -102,6 +116,8 @@ export function createVaultStore() {
     loaded,
     loadVault,
     openVault,
+    loadState,
+    saveState,
     newFolder,
     newNote,
     readNote,

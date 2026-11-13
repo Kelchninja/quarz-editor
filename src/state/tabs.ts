@@ -1,4 +1,5 @@
-import { batch, createSignal } from "solid-js";
+import { batch, createEffect, createSignal } from "solid-js";
+import type { VaultState } from "../bindings";
 import { createSessions } from "../editor/sessions";
 import type { VaultStore } from "./vault";
 
@@ -14,6 +15,29 @@ export function createTabs(vault: VaultStore) {
   const sessions = createSessions();
   // Last saved text per tab, to detect unsaved changes.
   const savedText = new Map<string, string>();
+
+  // workspace: save open tabs on every change, but only after restore(),
+  // otherwise the empty start state would overwrite the saved tabs.
+  let restored = false;
+  let saveTimer: number | undefined;
+  createEffect(() => {
+    const state: VaultState = { openNotes: list(), lastFocusedNote: activePath() ?? null };
+    if (!restored) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => vault.saveState(state), 300);
+  });
+
+  /** Opens the tabs that were open when the vault was closed last. */
+  async function restore() {
+    restored = false;
+    const state = await vault.loadState();
+    if (state) {
+      for (const path of state.openNotes) await open(path, true);
+      const focused = state.lastFocusedNote;
+      if (focused && list().includes(focused)) setActivePath(focused);
+    }
+    restored = true;
+  }
 
   // opening and closing
   async function open(path: string, pinned = false) {
@@ -114,6 +138,7 @@ export function createTabs(vault: VaultStore) {
     activePath,
     previewPath,
     sessions,
+    restore,
     open,
     newNote,
     pin,

@@ -12,14 +12,20 @@ function App() {
   const tabs = createTabs(vault);
   let sidebar: SidebarApi | undefined;
 
-  onMount(() => {
-    vault.loadVault();
+  async function openVault(path: string) {
+    await vault.openVault(path);
+    if (vault.vault()) await tabs.restore();
+  }
+
+  onMount(async () => {
+    await vault.loadVault();
+    if (vault.vault()) await tabs.restore();
   });
 
   // Nothing until the backend answered, otherwise the picker flashes on start.
   return (
     <Show when={vault.loaded()}>
-      <Show when={vault.vault()} fallback={<VaultPicker onOpen={vault.openVault} />}>
+      <Show when={vault.vault()} fallback={<VaultPicker onOpen={openVault} />}>
         {(v) => (
           <main class="app">
             <TabBar
