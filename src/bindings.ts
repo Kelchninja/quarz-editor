@@ -60,6 +60,26 @@ async openVault(path: string) : Promise<Result<VaultMeta, string>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * Open tabs of the current vault. Notes that no longer exist are left out.
+ * A broken state file is logged and treated as empty.
+ */
+async getVaultState() : Promise<Result<VaultState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_vault_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async saveVaultState(vaultState: VaultState) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_vault_state", { vaultState }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -88,6 +108,21 @@ export type VaultMeta = { name: string; notes: NoteMeta[]; folders: VaultPath[] 
  * Deserialization goes through [`TryFrom`], otherwise the frontend could send `../..`.
  */
 export type VaultPath = string
+/**
+ * Workspace of a vault: which notes are open and which one had focus.
+ * 
+ * Stored in `<vault>/.quarz/state.json`, like `.obsidian/workspace.json`.
+ * `default` lets older files without newer fields still load.
+ */
+export type VaultState = { 
+/**
+ * Open tabs, in tab order.
+ */
+openNotes: VaultPath[]; 
+/**
+ * The note that was active last, `None` if no tab was open.
+ */
+lastFocusedNote: VaultPath | null }
 
 /** tauri-specta globals **/
 
