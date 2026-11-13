@@ -1,5 +1,6 @@
 use crate::app::AppState;
 use crate::commands::helper;
+use crate::logging::logging::log_err;
 use crate::vault::entry::Editable;
 use crate::vault::meta::VaultMeta;
 use crate::vault::path::VaultPath;
@@ -13,7 +14,7 @@ pub async fn open_vault(
     path: String,
     state: tauri::State<'_, AppState>,
 ) -> Result<VaultMeta, String> {
-    let new_vault = Vault::open(PathBuf::from(path)).map_err(|e| e.to_string())?;
+    let new_vault = Vault::open(PathBuf::from(path)).map_err(log_err("open_vault"))?;
     let meta = VaultMeta::of(&new_vault);
     helper::with_registry(&state, |reg| {
         reg.remember(&new_vault.root);
@@ -34,7 +35,7 @@ pub async fn open_note(
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
     helper::with_vault(&state, |vault| {
-        let doc = vault.load(path).map_err(|e| e.to_string())?;
+        let doc = vault.load(path).map_err(log_err("open_note"))?;
         Ok(doc.source().to_string())
     })
 }
@@ -55,7 +56,7 @@ pub async fn create_folder(
     state: tauri::State<'_, AppState>,
 ) -> Result<VaultMeta, String> {
     helper::with_vault(&state, |vault| {
-        vault.create_folder(path).map_err(|e| e.to_string())?;
+        vault.create_folder(path).map_err(log_err("create_folder"))?;
         Ok(VaultMeta::of(vault))
     })
 }
@@ -67,7 +68,7 @@ pub async fn create_note(
     state: tauri::State<'_, AppState>,
 ) -> Result<VaultMeta, String> {
     helper::with_vault(&state, |vault| {
-        vault.create_note(path).map_err(|e| e.to_string())?;
+        vault.create_note(path).map_err(log_err("create_note"))?;
         Ok(VaultMeta::of(vault))
     })
 }
@@ -80,7 +81,7 @@ pub async fn rename_note(
     state: tauri::State<'_, AppState>,
 ) -> Result<VaultMeta, String> {
     helper::with_vault(&state, |vault| {
-        vault.rename_note(&name, &path).map_err(|e| e.to_string())?;
+        vault.rename_note(&name, &path).map_err(log_err("rename_note"))?;
         Ok(VaultMeta::of(vault))
     })
 }
@@ -93,6 +94,6 @@ pub async fn save_note(
     state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
     helper::with_vault(&state, |vault| {
-        vault.save_note(&content, &path).map_err(|e| e.to_string())
+        vault.save_note(&content, &path).map_err(log_err("save_note"))
     })
 }
