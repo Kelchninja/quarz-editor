@@ -1,7 +1,7 @@
 import { Show } from "solid-js";
-import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Plus, TriangleAlert } from "lucide-solid";
 import logo from "../assets/kristall.svg";
+import { pickFolder } from "../dialogs";
 import "../styles/picker.css";
 
 type VaultPickerProps = {
@@ -12,9 +12,9 @@ type VaultPickerProps = {
 
 /** Start screen when no vault is open. */
 function VaultPicker(props: VaultPickerProps) {
-  async function pickFolder(title: string) {
-    const path = await open({ directory: true, title });
-    if (typeof path === "string") props.onOpen(path);
+  async function openFolder(title: string) {
+    const path = await pickFolder(title);
+    if (path) props.onOpen(path);
   }
 
   return (
@@ -48,7 +48,7 @@ function VaultPicker(props: VaultPickerProps) {
             </div>
             <button
               class="picker-button primary"
-              onClick={() => pickFolder("Ordner als Vault öffnen")}
+              onClick={() => openFolder("Ordner als Vault öffnen")}
             >
               <FolderOpen size={16} />
               Öffnen
@@ -64,7 +64,7 @@ function VaultPicker(props: VaultPickerProps) {
             {/* No Vault::create yet: an empty folder opened as a vault is a new vault. */}
             <button
               class="picker-button"
-              onClick={() => pickFolder("Leeren Ordner für den neuen Vault wählen")}
+              onClick={() => openFolder("Leeren Ordner für den neuen Vault wählen")}
             >
               <Plus size={16} />
               Erstellen

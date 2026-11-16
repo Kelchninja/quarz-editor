@@ -27,9 +27,18 @@ export function createTabs(vault: VaultStore) {
     saveTimer = setTimeout(() => vault.saveState(state), 300);
   });
 
-  /** Opens the tabs that were open when the vault was closed last. */
+  /** Replaces all tabs with the ones that were open when the vault was closed last. */
   async function restore() {
     restored = false;
+    // Tabs of a previous vault, after a vault switch.
+    batch(() => {
+      setList([]);
+      setActivePath(undefined);
+      setPreviewPath(undefined);
+    });
+    savedText.clear();
+    sessions.retain(new Set());
+
     const state = await vault.loadState();
     if (state) {
       for (const path of state.openNotes) await open(path, true);
@@ -99,6 +108,11 @@ export function createTabs(vault: VaultStore) {
     if (text !== undefined && text !== savedText.get(path)) await save(path, text);
   }
 
+  /** Saves every open tab with unsaved changes. */
+  async function saveAll() {
+    for (const path of list()) await saveIfChanged(path);
+  }
+
   /** Renames the note and moves its tab to the new path. Returns false on error. */
   async function rename(path: string, name: string): Promise<boolean> {
     await saveIfChanged(path);
@@ -145,6 +159,7 @@ export function createTabs(vault: VaultStore) {
     close,
     initialText,
     save,
+    saveAll,
     rename,
     activate,
     cycle,

@@ -111,7 +111,7 @@ export type VaultPath = string
 /**
  * Workspace of a vault: which notes are open and which one had focus.
  * 
- * Stored in `<vault>/.quarz/state.json`, like `.obsidian/workspace.json`.
+ * Stored in `<vault>/.quarz/state.json`.
  * `default` lets older files without newer fields still load.
  */
 export type VaultState = { 

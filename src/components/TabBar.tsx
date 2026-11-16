@@ -1,15 +1,11 @@
 import { For, Show } from "solid-js";
 import { X } from "lucide-solid";
 import logo from "../assets/kristall-small.svg";
+import type { Tabs } from "../state/tabs";
 import "../styles/tabs.css";
 
 type TabBarProps = {
-  tabs: string[];
-  activePath?: string;
-  previewPath?: string;
-  onSelect: (path: string) => void;
-  onPin?: (path: string) => void;
-  onClose: (path: string) => void;
+  tabs: Tabs;
 };
 
 /** "folder/note.md" → "note" */
@@ -22,23 +18,23 @@ function TabBar(props: TabBarProps) {
     <nav class="tab-bar">
       <img class="app-logo" src={logo} alt="Quarz" draggable={false} />
 
-      <For each={props.tabs}>
+      <For each={props.tabs.list()}>
         {(path) => {
-          const active = () => path === props.activePath;
+          const active = () => path === props.tabs.activePath();
           return (
             <div
               class="tab"
-              classList={{ active: active(), preview: path === props.previewPath }}
+              classList={{ active: active(), preview: path === props.tabs.previewPath() }}
               title={path}
               onMouseDown={(e) => {
                 // Middle click closes, like in browsers.
                 if (e.button === 1) {
                   e.preventDefault();
-                  props.onClose(path);
+                  props.tabs.close(path);
                 }
               }}
-              onClick={() => props.onSelect(path)}
-              onDblClick={() => props.onPin?.(path)}
+              onClick={() => props.tabs.open(path)}
+              onDblClick={() => props.tabs.pin(path)}
             >
               <Show when={active()}>
                 <span class="tab-dot" />
@@ -50,7 +46,7 @@ function TabBar(props: TabBarProps) {
                 onClick={(e) => {
                   // Otherwise the click would also select the tab.
                   e.stopPropagation();
-                  props.onClose(path);
+                  props.tabs.close(path);
                 }}
               >
                 <X size={14} />

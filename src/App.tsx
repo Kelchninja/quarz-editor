@@ -1,8 +1,7 @@
-import { onMount, Show } from "solid-js";
-import Editor from "./components/Editor";
-import TabBar from "./components/TabBar";
+import { Match, onMount, Switch } from "solid-js";
 import VaultPicker from "./components/VaultPicker";
-import Sidebar, { type SidebarApi } from "./components/sidebar/Sidebar";
+import Workspace from "./components/Workspace";
+import { pickFolder } from "./dialogs";
 import { createTabs } from "./state/tabs";
 import { createVaultStore } from "./state/vault";
 import "./styles/base.css";
@@ -10,47 +9,40 @@ import "./styles/base.css";
 function App() {
   const vault = createVaultStore();
   const tabs = createTabs(vault);
-  let sidebar: SidebarApi | undefined;
+
+  /** Reopens the saved tabs, if a vault is open. */
+  async function restoreTabs() {
+    if (vault.vault()) await tabs.restore();
+  }
 
   async function openVault(path: string) {
+    // Before the switch, otherwise the backend would save old notes into the new vault.
+    await tabs.saveAll();
     await vault.openVault(path);
-    if (vault.vault()) await tabs.restore();
+    await restoreTabs();
+  }
+
+  /** Lets the user pick another vault folder and opens it. */
+  async function switchVault() {
+    const path = await pickFolder("Anderen Vault öffnen");
+    if (path) await openVault(path);
   }
 
   onMount(async () => {
     await vault.loadVault();
-    if (vault.vault()) await tabs.restore();
+    await restoreTabs();
   });
 
-  // Nothing until the backend answered, otherwise the picker flashes on start.
   return (
-    <Show when={vault.loaded()}>
-      <Show when={vault.vault()} fallback={<VaultPicker onOpen={openVault} />}>
-        {(v) => (
-          <main class="app">
-            <TabBar
-              tabs={tabs.list()}
-              activePath={tabs.activePath()}
-              previewPath={tabs.previewPath()}
-              onSelect={tabs.open}
-              onPin={tabs.pin}
-              onClose={tabs.close}
-            />
-            <div class="app-body">
-              <Sidebar
-                vault={v()}
-                activePath={tabs.activePath()}
-                onOpen={tabs.open}
-                onCreateFolder={vault.newFolder}
-                onCreateNote={tabs.newNote}
-                ref={(api) => (sidebar = api)}
-              />
-              <Editor tabs={tabs} onNewNote={() => sidebar?.startDraft("note")} />
-            </div>
-          </main>
-        )}
-      </Show>
-    </Show>
+    <Switch>
+      <Match when={vault.vault()}>
+        {(meta) => <Workspace vault={meta()} tabs={tabs} onCreateFolder={vault.newFolder} onOpenVault={switchVault} />}
+      </Match>
+      {/* Only after the backend answered, otherwise the picker flashes on start. */}
+      <Match when={vault.loaded()}>
+        <VaultPicker onOpen={openVault} />
+      </Match>
+    </Switch>
   );
 }
 
