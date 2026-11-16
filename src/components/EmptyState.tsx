@@ -1,5 +1,6 @@
 import { Show } from "solid-js";
 import { FilePlus, FolderOpen, FolderPlus } from "lucide-solid";
+import { t } from "../i18n";
 import "../styles/empty.css";
 
 type EmptyStateProps = {
@@ -15,24 +16,24 @@ function EmptyState(props: EmptyStateProps) {
     <div class="empty">
       <div class="empty-content">
         <div class="empty-header">
-          <h2 class="empty-title">Keine Notiz geöffnet</h2>
-          <p class="empty-subtitle">Wähle links eine Notiz oder fang neu an.</p>
+          <h2 class="empty-title">{t("empty.title")}</h2>
+          <p class="empty-subtitle">{t("empty.subtitle")}</p>
         </div>
 
-        <nav class="empty-actions" aria-label="Schnellaktionen">
+        <nav class="empty-actions" aria-label={t("empty.actions")}>
           <button class="empty-action primary" onClick={() => props.onNewNote()}>
             <FilePlus size={16} class="empty-action-icon" />
-            <span class="empty-action-label">Neue Notiz erstellen</span>
-            <kbd class="empty-kbd">Strg N</kbd>
+            <span class="empty-action-label">{t("empty.newNote")}</span>
+            <kbd class="empty-kbd">{t("empty.newNoteShortcut")}</kbd>
           </button>
           <button class="empty-action" onClick={() => props.onNewFolder()}>
             <FolderPlus size={16} class="empty-action-icon" />
-            <span class="empty-action-label">Neuen Ordner erstellen</span>
+            <span class="empty-action-label">{t("empty.newFolder")}</span>
           </button>
           <Show when={props.onOpenVault}>
             <button class="empty-action" onClick={() => props.onOpenVault?.()}>
               <FolderOpen size={16} class="empty-action-icon" />
-              <span class="empty-action-label">Anderen Vault öffnen</span>
+              <span class="empty-action-label">{t("empty.openVault")}</span>
             </button>
           </Show>
         </nav>

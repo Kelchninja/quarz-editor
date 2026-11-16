@@ -2,6 +2,7 @@ import { Show } from "solid-js";
 import { FolderOpen, Plus, TriangleAlert } from "lucide-solid";
 import logo from "../assets/kristall.svg";
 import { pickFolder } from "../dialogs";
+import { t } from "../i18n";
 import "../styles/picker.css";
 
 type VaultPickerProps = {
@@ -21,9 +22,9 @@ function VaultPicker(props: VaultPickerProps) {
     <main class="picker">
       <div class="picker-content">
         <header class="picker-header">
-          <img class="picker-logo" src={logo} alt="Quarz-Logo" draggable={false} />
+          <img class="picker-logo" src={logo} alt={t("picker.logoAlt")} draggable={false} />
           <h1 class="picker-title">Quarz</h1>
-          <p class="picker-subtitle">Wähle einen Ordner für deine Notizen.</p>
+          <p class="picker-subtitle">{t("picker.subtitle")}</p>
         </header>
 
         <Show when={props.missingPath}>
@@ -31,7 +32,7 @@ function VaultPicker(props: VaultPickerProps) {
             <div class="picker-notice" role="alert">
               <TriangleAlert size={18} class="picker-notice-icon" />
               <div class="picker-notice-text">
-                <span class="picker-notice-title">Letzter Vault nicht gefunden</span>
+                <span class="picker-notice-title">{t("picker.missingTitle")}</span>
                 <span class="picker-notice-path">{path()}</span>
               </div>
             </div>
@@ -41,33 +42,29 @@ function VaultPicker(props: VaultPickerProps) {
         <div class="picker-actions">
           <div class="picker-action">
             <div class="picker-action-text">
-              <span class="picker-action-title">Ordner als Vault öffnen</span>
-              <span class="picker-action-desc">
-                Einen bestehenden Ordner mit Markdown-Notizen öffnen.
-              </span>
+              <span class="picker-action-title">{t("picker.openTitle")}</span>
+              <span class="picker-action-desc">{t("picker.openDesc")}</span>
             </div>
             <button
               class="picker-button primary"
-              onClick={() => openFolder("Ordner als Vault öffnen")}
+              onClick={() => openFolder(t("picker.openTitle"))}
             >
               <FolderOpen size={16} />
-              Öffnen
+              {t("picker.openButton")}
             </button>
           </div>
           <div class="picker-action">
             <div class="picker-action-text">
-              <span class="picker-action-title">Neuen Vault erstellen</span>
-              <span class="picker-action-desc">
-                Einen neuen, leeren Vault in einem Ordner deiner Wahl anlegen.
-              </span>
+              <span class="picker-action-title">{t("picker.createTitle")}</span>
+              <span class="picker-action-desc">{t("picker.createDesc")}</span>
             </div>
             {/* No Vault::create yet: an empty folder opened as a vault is a new vault. */}
             <button
               class="picker-button"
-              onClick={() => openFolder("Leeren Ordner für den neuen Vault wählen")}
+              onClick={() => openFolder(t("picker.createDialog"))}
             >
               <Plus size={16} />
-              Erstellen
+              {t("picker.createButton")}
             </button>
           </div>
         </div>

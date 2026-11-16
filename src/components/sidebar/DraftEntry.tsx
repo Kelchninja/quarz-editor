@@ -1,6 +1,7 @@
 import { onMount, Show } from "solid-js";
 import { ChevronRight } from "lucide-solid";
 import type { Draft, SidebarState } from "./types";
+import { t } from "../../i18n";
 
 type DraftEntryProps = {
   draft: Draft;
@@ -11,7 +12,7 @@ type DraftEntryProps = {
 /** Name input for a new folder or note, like in a file explorer. */
 function DraftEntry(props: DraftEntryProps) {
   const { kind, parent } = props.draft;
-  const defaultName = kind === "folder" ? "Neuer Ordner" : "Unbenannt";
+  const defaultName = t(kind === "folder" ? "sidebar.defaultFolderName" : "sidebar.defaultNoteName");
   let input!: HTMLInputElement;
   let done = false;
 

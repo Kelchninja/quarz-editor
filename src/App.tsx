@@ -4,6 +4,7 @@ import Workspace from "./components/Workspace";
 import { pickFolder } from "./dialogs";
 import { createTabs } from "./state/tabs";
 import { createVaultStore } from "./state/vault";
+import { t } from "./i18n";
 import "./styles/base.css";
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
 
   /** Lets the user pick another vault folder and opens it. */
   async function switchVault() {
-    const path = await pickFolder("Anderen Vault öffnen");
+    const path = await pickFolder(t("empty.openVault"));
     if (path) await openVault(path);
   }
 

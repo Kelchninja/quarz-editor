@@ -2,6 +2,7 @@ import { For, Show } from "solid-js";
 import { X } from "lucide-solid";
 import logo from "../assets/kristall-small.svg";
 import type { Tabs } from "../state/tabs";
+import { t } from "../i18n";
 import "../styles/tabs.css";
 
 type TabBarProps = {
@@ -42,7 +43,7 @@ function TabBar(props: TabBarProps) {
               <span class="tab-title">{tabTitle(path)}</span>
               <button
                 class="tab-close"
-                aria-label="Tab schließen"
+                aria-label={t("tabs.close")}
                 onClick={(e) => {
                   // Otherwise the click would also select the tab.
                   e.stopPropagation();

@@ -12,6 +12,7 @@ import { buildTree } from "./buildTree";
 import DraftEntry from "./DraftEntry";
 import TreeItem from "./TreeItem";
 import type { Draft, SidebarState } from "./types";
+import { t } from "../../i18n";
 import "../../styles/sidebar.css";
 
 type SidebarProps = {
@@ -86,14 +87,14 @@ function Sidebar(props: SidebarProps) {
         <span class="sidebar-title">{props.vault.name}</span>
         <button
           class="icon-button"
-          aria-label="Neue Notiz"
+          aria-label={t("sidebar.newNote")}
           onClick={() => startDraft("note")}
         >
           <Plus size={16} />
         </button>
         <button
           class="icon-button"
-          aria-label="Neuer Ordner"
+          aria-label={t("sidebar.newFolder")}
           onClick={() => startDraft("folder")}
         >
           <FolderPlus size={16} />
