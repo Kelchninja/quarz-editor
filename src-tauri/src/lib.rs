@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use specta_typescript::Typescript;
 use tauri::Manager;
 use tauri_plugin_log::{Target, TargetKind};
-use tauri_specta::{Builder, collect_commands};
+use tauri_specta::{Builder, collect_commands, collect_events};
 
 use crate::{app::AppState, config::vaultregistry::VaultRegistry, vault::vault::Vault};
 
@@ -12,10 +12,13 @@ mod commands;
 mod config;
 mod logging;
 mod vault;
+mod watcher;
+mod events;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
+    let builder = Builder::<tauri::Wry>::new()
+    .commands(collect_commands![
         commands::vault::open_note,
         commands::vault::get_vault_meta,
         commands::vault::create_folder,
@@ -25,6 +28,10 @@ pub fn run() {
         commands::vault::open_vault,
         commands::vault::get_vault_state,
         commands::vault::save_vault_state
+    ])
+    .events(collect_events![
+        events::vault::NoteChanged,
+        events::vault::DirectoryChanged
     ]);
 
     // Debug builds only: writes the TS types and command functions.
