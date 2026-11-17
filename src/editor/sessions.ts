@@ -1,4 +1,4 @@
-import { EditorState, type Extension } from "@codemirror/state";
+import { EditorState, Transaction, type Extension } from "@codemirror/state";
 import type { EditorView } from "@codemirror/view";
 
 /**
@@ -54,6 +54,27 @@ export function createSessions() {
     return states.get(path)?.doc.toString();
   }
 
+  /**
+   * Replaces the whole text of a tab, e.g. after a change outside Quarz.
+   * Keeps the undo history. Marked as remote, so autosave and pin ignore it.
+   */
+  function setText(path: string, text: string) {
+    if (path === current && view) {
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: text },
+        annotations: Transaction.remote.of(true),
+      });
+      return;
+    }
+    const state = states.get(path);
+    if (state) {
+      states.set(
+        path,
+        state.update({ changes: { from: 0, to: state.doc.length, insert: text } }).state,
+      );
+    }
+  }
+
   /** Drops the states of closed tabs. */
   function retain(openPaths: Set<string>) {
     for (const path of [...states.keys()]) {
@@ -76,7 +97,7 @@ export function createSessions() {
     if (current === oldPath) current = newPath;
   }
 
-  return { attach, show, textOf, retain, rename };
+  return { attach, show, textOf, setText, retain, rename };
 }
 
 export type Sessions = ReturnType<typeof createSessions>;

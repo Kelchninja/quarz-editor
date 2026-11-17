@@ -40,6 +40,9 @@ pub fn run() {
         .export(Typescript::default(), "../src/bindings.ts")
         .expect("TypeScript-Bindings konnten nicht geschrieben werden");
 
+    // Taken out before `builder` moves into `setup`.
+    let invoke_handler = builder.invoke_handler();
+
     tauri::Builder::default()
         .plugin(
             tauri_plugin_log::Builder::new()
@@ -50,7 +53,10 @@ pub fn run() {
                 .level(log::LevelFilter::Info)
                 .build(), 
         )
-        .setup(|app| {
+        .setup(move |app| {
+            // Without this, `Event::emit` panics.
+            builder.mount_events(app);
+
             // app local data directory
             let local_data_dir = app
                 .handle()
@@ -67,9 +73,16 @@ pub fn run() {
             // get last vault
             let vault = registry.last_vault().and_then(|entry| Vault::open(entry.path.clone())
             .inspect_err(|e| log::error!("{e}")).ok());
+            // watches outside changes and notifies the fronend.
+            let watcher = vault.as_ref().and_then(|v| {
+                watcher::watcher::watch(app.handle().clone(), v.root.clone())
+                    .inspect_err(|e| log::error!("watcher: {e}"))
+                    .ok()
+            });
 
             app.manage(AppState {
                 vault: Mutex::new(vault),
+                watcher: Mutex::new(watcher),
                 registry: Mutex::new(registry),
             });
             Ok(())
@@ -77,7 +90,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_prevent_default::init())
-        .invoke_handler(builder.invoke_handler())
+        .invoke_handler(invoke_handler)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

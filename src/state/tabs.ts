@@ -1,5 +1,5 @@
-import { batch, createEffect, createSignal } from "solid-js";
-import type { VaultState } from "../bindings";
+import { batch, createEffect, createSignal, onCleanup } from "solid-js";
+import { events, type VaultState } from "../bindings";
 import { createSessions } from "../editor/sessions";
 import type { VaultStore } from "./vault";
 
@@ -107,6 +107,25 @@ export function createTabs(vault: VaultStore) {
     const text = sessions.textOf(path);
     if (text !== undefined && text !== savedText.get(path)) await save(path, text);
   }
+
+  /**
+   * Loads the text of an open tab from disk again, after a change outside Quarz.
+   * Skipped while the tab has unsaved changes, those would be lost.
+   */
+  async function reload(path: string) {
+    if (!list().includes(path)) return;
+    const current = sessions.textOf(path);
+    if (current !== undefined && current !== savedText.get(path)) return;
+
+    const text = await vault.readNote(path);
+    if (text === undefined) return;
+    savedText.set(path, text);
+    sessions.setText(path, text);
+  }
+
+  // Sent by the backend watcher, only for real changes, not for our own saves.
+  const unlisten = events.noteChanged.listen((e) => reload(e.payload.path));
+  onCleanup(() => unlisten.then((stop) => stop()));
 
   /** Saves every open tab with unsaved changes. */
   async function saveAll() {

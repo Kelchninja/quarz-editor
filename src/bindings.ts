@@ -86,6 +86,13 @@ async saveVaultState(vaultState: VaultState) : Promise<Result<null, string>> {
 /** user-defined events **/
 
 
+export const events = __makeEvents__<{
+directoryChanged: DirectoryChanged,
+noteChanged: NoteChanged
+}>({
+directoryChanged: "directory-changed",
+noteChanged: "note-changed"
+})
 
 /** user-defined constants **/
 
@@ -93,6 +100,8 @@ async saveVaultState(vaultState: VaultState) : Promise<Result<null, string>> {
 
 /** user-defined types **/
 
+export type DirectoryChanged = { path: string }
+export type NoteChanged = { path: VaultPath }
 /**
  * Lightweight view of a note for the frontend, without content.
  */

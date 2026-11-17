@@ -6,6 +6,7 @@ use crate::vault::meta::VaultMeta;
 use crate::vault::path::VaultPath;
 use crate::vault::vault::Vault;
 use crate::vault::vaultstate::VaultState;
+use crate::watcher::watcher;
 
 use std::path::PathBuf;
 
@@ -13,10 +14,15 @@ use std::path::PathBuf;
 #[specta::specta]
 pub async fn open_vault(
     path: String,
+    app: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
 ) -> Result<VaultMeta, String> {
     let new_vault = Vault::open(PathBuf::from(path)).map_err(log_err("open_vault"))?;
     let meta = VaultMeta::of(&new_vault);
+    // Without a watcher the app still works, it just misses outside changes.
+    let new_watcher = watcher::watch(app, new_vault.root.clone())
+        .inspect_err(|e| log::error!("watcher: {e}"))
+        .ok();
     helper::with_registry(&state, |reg| {
         reg.remember(&new_vault.root);
         if let Err(e) = reg.save() {
@@ -25,7 +31,9 @@ pub async fn open_vault(
         Ok(())
     })?;
     *state.vault.lock().map_err(|e| e.to_string())? = Some(new_vault);
-    
+    // Drops the old watcher, which stops watching the old vault.
+    *state.watcher.lock().map_err(|e| e.to_string())? = new_watcher;
+
     Ok(meta)
 }
 

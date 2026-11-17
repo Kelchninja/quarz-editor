@@ -14,7 +14,7 @@ import {
   mathPlugin,
   mouseSelectingField,
 } from "codemirror-live-markdown";
-import { autosave } from "../editor/autosave";
+import { autosave, isRemote } from "../editor/autosave";
 import NoteTitle, { focusAtEnd, titleOf } from "./NoteTitle";
 
 type EditorProps = {
@@ -43,7 +43,8 @@ function Editor(props: EditorProps) {
 
   const editorUpdateListenerExt = EditorView.updateListener.of((update) => {
     const path = props.tabs.activePath();
-    if (update.docChanged && path) props.tabs.pin(path);
+    // Only the user's own edits pin a preview tab.
+    if (update.docChanged && !isRemote(update) && path) props.tabs.pin(path);
   });
 
   const codeBlockFieldExt = codeBlockField({ copyButton: true });

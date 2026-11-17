@@ -1,5 +1,10 @@
-import type { EditorState } from "@codemirror/state";
+import { Transaction, type EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
+
+/** True if the update only came from outside Quarz, see `sessions.setText`. */
+export function isRemote(update: { transactions: readonly Transaction[] }): boolean {
+  return update.transactions.every((tr) => tr.annotation(Transaction.remote));
+}
 
 /** Saves a note once nothing was typed for `delay` ms. */
 export function autosave(
@@ -11,7 +16,8 @@ export function autosave(
   const timers = new Map<string, number>();
 
   return EditorView.updateListener.of((update) => {
-    if (!update.docChanged) return;
+    // The text is already on disk.
+    if (!update.docChanged || isRemote(update)) return;
     const path = activePath();
     if (!path) return;
 
